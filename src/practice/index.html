@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>吉他和弦转换练习</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <!-- ===== 左侧主训练区 ===== -->
+  <div class="main-panel">
+    <!-- 导航栏 -->
+    <div class="navbar">
+      <div class="navbar-top">
+        <div class="navbar-left">
+          <div class="navbar-task-name" id="navbarTaskName">
+            <span class="icon">🎸</span>
+            <span class="name">吉他和弦转换练习</span>
+          </div>
+          <span class="speed-tag" id="speedTag">--次/分钟</span>
+          <span class="speed-tag mode-tag" id="modeTag"></span>
+        </div>
+
+        <div class="navbar-actions">
+          <button class="btn-start" id="startBtn" disabled>
+            <span class="btn-text">▶ 开始练习</span>
+          </button>
+          <button class="hamburger" id="hamburgerBtn" title="任务列表">☰</button>
+        </div>
+      </div>
+
+      <div id="previewSection">
+        <div class="preview-label">转换序列</div>
+        <div class="preview-list" id="previewList"></div>
+      </div>
+
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content-area" id="contentArea">
+      <div class="content-empty">
+        <div class="big-icon">🎸</div>
+        <p>请从右侧选择一个训练任务<br>或新建一个任务开始练习</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== 右侧任务面板 ===== -->
+  <div class="side-panel" id="sidePanel">
+    <div class="side-header">
+      <h2>🎸 训练任务</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-new" id="newTaskBtn">＋ 新建任务</button>
+        <button class="btn-close-drawer" id="closeDrawerBtn">✕</button>
+      </div>
+    </div>
+    <div class="task-list" id="taskList"></div>
+    <div class="io-actions">
+      <button id="exportBtn">⬇ 导出</button>
+      <button id="importBtn">⬆ 导入</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+  </div>
+</div>
+
+<!-- ===== 任务编辑弹窗 ===== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">新建任务</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- 任务名称 -->
+      <div class="form-group">
+        <label class="form-label">任务名称 <span class="req">*</span></label>
+        <input type="text" class="input-field" id="f-name" placeholder="例如：C大调常用和弦练习">
+      </div>
+
+      <!-- 选择和弦 -->
+      <div class="form-group">
+        <label class="form-label">选择和弦 <span class="req">*</span></label>
+        <div class="chord-selector" id="chordSelector"></div>
+        <div class="form-hint">点击和弦选择，支持按调、按三和弦/七和弦分组全选</div>
+      </div>
+
+      <!-- 转换模式 -->
+      <div class="form-group">
+        <label class="form-label">转换模式</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="f-mode" value="sequential" checked> 顺序转换</label>
+          <label class="radio-option"><input type="radio" name="f-mode" value="random"> 随机转换</label>
+        </div>
+      </div>
+
+
+      <!-- 编排顺序 -->
+      <div class="form-group hidden-field" id="orderField">
+        <label class="form-label">编排顺序</label>
+        <div class="order-list" id="orderList"></div>
+        <div class="form-hint">使用上下箭头调整和弦切换顺序</div>
+      </div>
+
+      <!-- 转换速度 -->
+      <div class="form-group">
+        <label class="form-label">转换速度（次/分钟）</label>
+        <input type="number" class="input-field" id="f-speed" min="1" max="300" value="60">
+        <div class="form-hint">设置每分钟转换多少次和弦</div>
+      </div>
+
+      <!-- 和弦转换预览 -->
+      <div class="form-group">
+        <label class="form-label">和弦转换预览</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="f-preview" value="true" checked> 是</label>
+          <label class="radio-option"><input type="radio" name="f-preview" value="false"> 否</label>
+        </div>
+      </div>
+
+      <!-- 预览内容 -->
+
+      <div class="form-group hidden-field" id="previewContentField">
+        <label class="form-label">预览内容</label>
+        <div class="checkbox-group" id="previewContentGroup">
+          <label class="checkbox-item"><input type="checkbox" value="name" checked> 名称</label>
+          <label class="checkbox-item"><input type="checkbox" value="fingering"> 指法</label>
+        </div>
+      </div>
+
+      <!-- 显示和弦内容 -->
+      <div class="form-group">
+        <label class="form-label">显示和弦内容</label>
+        <div class="radio-group vertical">
+          <label class="radio-option"><input type="radio" name="f-displayMode" value="simple"> 简化（调式、级数、属性、名称）</label>
+          <label class="radio-option"><input type="radio" name="f-displayMode" value="detail" checked> 详细</label>
+        </div>
+      </div>
+
+      <!-- 选择具体内容 -->
+      <div class="form-group hidden-field" id="displayContentFieldGroup">
+        <label class="form-label">选择具体内容</label>
+        <div class="checkbox-group vertical" id="displayContentField">
+          <label class="checkbox-item"><input type="checkbox" value="basic" checked> 基本属性（调式、级数、属性、调式音阶）</label>
+          <label class="checkbox-item"><input type="checkbox" value="detail" checked> 详细解析（构成音、根音、指法）</label>
+          <label class="checkbox-item"><input type="checkbox" value="arpeggio" checked> 分解和弦</label>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="modalCancel">取消</button>
+      <button class="btn-save" id="modalSave">保存任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- 提示 toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

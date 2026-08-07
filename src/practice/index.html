@@ -116,6 +116,25 @@
         <div class="form-hint">设置每分钟转换多少次和弦</div>
       </div>
 
+      <!-- 播放模式 -->
+      <div class="form-group">
+        <label class="form-label">播放模式</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="f-playMode" value="ks" checked> Karplus-Strong 合成</label>
+          <label class="radio-option"><input type="radio" name="f-playMode" value="sampler"> 真实采样（tonejs-instruments）</label>
+        </div>
+      </div>
+
+      <!-- 吉他音色（真实采样时显示） -->
+      <div class="form-group hidden-field" id="playToneField">
+        <label class="form-label">吉他音色</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="f-playTone" value="nylon" checked> 尼龙弦（古典，柔和）</label>
+          <label class="radio-option"><input type="radio" name="f-playTone" value="acoustic"> 民谣钢弦（明亮）</label>
+          <label class="radio-option"><input type="radio" name="f-playTone" value="electric"> 电吉他（圆润）</label>
+        </div>
+      </div>
+
       <!-- 和弦转换预览 -->
       <div class="form-group">
         <label class="form-label">和弦转换预览</label>

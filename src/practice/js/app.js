@@ -600,11 +600,8 @@
       btn.addEventListener('click', () => {
         // 播放时暂停自动转换，避免"画面切走、声音还在放旧和弦"
         if (trainingState === 'running') pauseTraining();
-        if (GuitarAudio.getMode() === 'sampler' && GuitarAudio.isSamplerLoading() && !GuitarAudio.isSamplerReady() && !samplerNotified) {
-          samplerNotified = true;
-          toast('采样加载中，暂时使用合成音色');
-        }
         const i = parseInt(btn.dataset.arp, 10);
+
         const a = chord.arpeggio[i];
         GuitarAudio.playArpeggio(chord, a.pattern, 80);
         btn.classList.add('playing');
@@ -746,23 +743,18 @@
     updateControls();
   }
 
-  /* ---------- 音频播放模式 ---------- */
-  let samplerNotified = false; // 避免重复提示"采样加载中"
+  /* ---------- 音频：加载真实采样 ---------- */
   function applyAudioMode(task) {
-    const mode = (task && task.playMode) || 'ks';
-    GuitarAudio.setMode(mode);
-    if (mode === 'sampler') {
-      const tone = (task && task.playTone) || 'nylon';
-      if (GuitarAudio.currentTone() !== tone || !GuitarAudio.isSamplerReady()) {
-        samplerNotified = false;
-        GuitarAudio.loadSampler(tone,
-          () => {},
-          () => { toast('采样已就绪'); },
-          () => { toast('真实采样加载失败：请用本地服务器打开（Live Server 或 python -m http.server）', true); GuitarAudio.setMode('ks'); }
-        );
-      }
+    const tone = (task && task.playTone) || 'nylon';
+    if (GuitarAudio.currentTone() !== tone || !GuitarAudio.isSamplerReady()) {
+      GuitarAudio.loadSampler(tone,
+        () => {},
+        () => { toast('采样已就绪'); },
+        () => { toast('真实采样加载失败：请用本地服务器打开（Live Server 或 python -m http.server）', true); }
+      );
     }
   }
+
 
   /* ---------- 任务编辑弹窗 ---------- */
   function openModal(task) {
@@ -795,11 +787,10 @@
     els.displayContentField.querySelectorAll('input').forEach(cb => {
       cb.checked = dc.includes(cb.value);
     });
-    // 播放模式与音色
-    const pmVal = task ? (task.playMode || 'ks') : 'ks';
-    document.querySelectorAll('input[name="f-playMode"]').forEach(r => { r.checked = r.value === pmVal; });
+    // 吉他音色
     const ptVal = task ? (task.playTone || 'nylon') : 'nylon';
     document.querySelectorAll('input[name="f-playTone"]').forEach(r => { r.checked = r.value === ptVal; });
+
 
 
 
@@ -973,10 +964,10 @@
     // 显示模式：简化隐藏"选择具体内容"字段，详细显示
     const dm = document.querySelector('input[name="f-displayMode"]:checked').value;
     els.displayContentFieldGroup.classList.toggle('hidden-field', dm !== 'detail');
-    // 播放模式：真实采样时才显示吉他音色
-    const pm = document.querySelector('input[name="f-playMode"]:checked').value;
-    els.playToneField.classList.toggle('hidden-field', pm !== 'sampler');
+    // 吉他音色始终显示（真实采样方案）
+    els.playToneField.classList.remove('hidden-field');
   }
+
 
 
   /* 保存任务 */
@@ -993,8 +984,8 @@
     const previewContent = [...els.previewContentGroup.querySelectorAll('input:checked')].map(cb => cb.value);
     const displayMode = document.querySelector('input[name="f-displayMode"]:checked').value;
     const displayContent = [...els.displayContentField.querySelectorAll('input:checked')].map(cb => cb.value);
-    const playMode = document.querySelector('input[name="f-playMode"]:checked').value;
     const playTone = document.querySelector('input[name="f-playTone"]:checked').value;
+
 
 
     const task = {
@@ -1008,9 +999,9 @@
       previewContent,
       displayMode,
       displayContent,
-      playMode,
       playTone
     };
+
 
 
 
@@ -1077,8 +1068,8 @@
     els.modalSave.addEventListener('click', saveTask);
     // 模式/显示模式切换
     document.querySelectorAll('input[name="f-mode"]').forEach(r => r.addEventListener('change', updateModalVisibility));
-    document.querySelectorAll('input[name="f-playMode"]').forEach(r => r.addEventListener('change', updateModalVisibility));
     document.querySelectorAll('input[name="f-displayMode"]').forEach(r => {
+
       r.addEventListener('change', () => {
         // 从简化切换到详细：默认全选"选择具体内容"下的所有选项
         if (r.checked && r.value === 'detail') {

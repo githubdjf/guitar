@@ -9,7 +9,7 @@
   let currentTaskId = null; // 当前选中任务
   let currentChordIdx = 0;  // 当前显示的和弦索引
   let timer = null;         // 训练计时器
-  let isRunning = false;    // 是否正在训练
+  let trainingState = 'idle'; // 训练状态：idle 未开始 / running 转换中 / paused 已暂停
   let editingId = null;     // 正在编辑的任务 id
   let shuffledOrder = [];   // 随机模式的乱序集合（和弦索引数组）
   let shuffledIdx = 0;      // 当前在乱序集合中的位置
@@ -25,6 +25,7 @@
     previewList: $('previewList'),
     contentArea: $('contentArea'),
     startBtn: $('startBtn'),
+    restartBtn: $('restartBtn'),
     speedTag: $('speedTag'),
     modeTag: $('modeTag'),
 
@@ -34,6 +35,7 @@
     sidePanel: $('sidePanel'),
     hamburgerBtn: $('hamburgerBtn'),
     closeDrawerBtn: $('closeDrawerBtn'),
+    drawerBackdrop: $('drawerBackdrop'),
     newTaskBtn: $('newTaskBtn'),
     exportBtn: $('exportBtn'),
     importBtn: $('importBtn'),
@@ -77,6 +79,83 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
+  /* 将音名/和弦名拆分为：基础字母 + 升降号（#/b）+ 后缀 */
+  function splitNote(name) {
+    const m = /^([A-Ga-g])([#b]?)(.*)$/.exec(String(name));
+    if (!m) return { letter: String(name), acc: '', suffix: '' };
+    return { letter: m[1], acc: m[2], suffix: m[3] };
+  }
+
+  /* HTML：把升降号渲染为基础字母左上角的 ♯/♭（不放在右边） */
+  function noteHTML(name) {
+    const { letter, acc, suffix } = splitNote(name);
+    if (!acc) return esc(name);
+    const sym = acc === '#' ? '♯' : '♭';
+    return `<span class="note-w"><span class="note-acc">${sym}</span><span class="note-base">${esc(letter)}</span></span><span class="note-suffix">${esc(suffix)}</span>`;
+  }
+
+  /* SVG 文本：和弦图底部名称中的升降号同样置于左上角 */
+  function svgNameTspans(name) {
+    const { letter, acc, suffix } = splitNote(name);
+    if (!acc) return esc(name);
+    const sym = acc === '#' ? '♯' : '♭';
+    return `<tspan class="cd-acc" dx="-10" dy="-5">${sym}</tspan><tspan dx="2">${esc(letter)}</tspan><tspan class="cd-suffix">${esc(suffix)}</tspan>`;
+  }
+
+  /* ---------- 和弦音位指板（根音区）辅助 ---------- */
+  const OPEN_PC = { 6: 4, 5: 9, 4: 2, 3: 7, 2: 11, 1: 4 }; // 空弦音半音序号（E A D G B E）
+  const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const CHROMATIC_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  const FLAT_KEYS = ['F','Bb','Eb'];
+
+  /* 按调拼写音名：降号调用降号、升号调用升号，自然音永远用本名 */
+  function noteAt(key, string, fret) {
+    const pc = (OPEN_PC[string] + fret) % 12;
+    return (FLAT_KEYS.includes(key) ? CHROMATIC_FLAT : CHROMATIC_SHARP)[pc];
+  }
+
+  /* SVG 文本：指板音名，字母精确居中在弦上，升降号固定于字母左上旁 */
+  function svgNoteTspans(note, x) {
+    const { letter, acc } = splitNote(note);
+    if (!acc) return esc(note);
+    const sym = acc === '#' ? '♯' : '♭';
+    return `<tspan class="rf-acc" x="${x - 8}" dy="-3.5">${sym}</tspan><tspan x="${x}" dy="0">${esc(letter)}</tspan>`;
+  }
+
+  /* 和弦级数 → 悬停提示（罗马数字含义） */
+  const DEGREE_TIPS = {
+    I: '一级和弦（主和弦）：大调主音上的大三和弦，和声最稳定',
+    ii: '二级和弦（上主和弦）：小三和弦',
+    iii: '三级和弦（中音和弦）：小三和弦',
+    IV: '四级和弦（下属和弦）：大三和弦',
+    V: '五级和弦（属和弦）：大三和弦，常带紧张感',
+    vi: '六级和弦（下中音和弦）：小三和弦',
+    'vii°': '七级和弦：导音上构建的减三和弦（° 是减和弦记号，音程 1-♭3-♭5）',
+    I7: '一级大七和弦（主和弦加七音）',
+    ii7: '二级小七和弦',
+    iii7: '三级小七和弦',
+    IV7: '四级大七和弦',
+    V7: '五级属七和弦（属和弦加小七度，收束感强）',
+    vi7: '六级小七和弦'
+  };
+  function degreeTitle(degree) {
+    return DEGREE_TIPS[degree] || '和弦级数：罗马数字表示该和弦建立在音阶的第几级音上（大写=大三和弦，小写=小三和弦，°=减和弦）';
+  }
+
+  /* 和弦属性 → 悬停提示（构成音说明） */
+  const TYPE_TIPS = {
+    major: '大三和弦：根音+大三度+纯五度，音色明亮稳定',
+    minor: '小三和弦：根音+小三度+纯五度，音色柔和忧伤',
+    dim: '减三和弦：根音+小三度+减五度，音色紧张（常用记号 °）',
+    major7: '大七和弦：大三和弦+大七度，音色梦幻爵士',
+    minor7: '小七和弦：小三和弦+小七度，音色慵懒',
+    dominant7: '属七和弦：大三和弦+小七度，音色有推进感',
+    dim7: '减七和弦：减三和弦+减七度，音色尖锐'
+  };
+  function typeTitle(type) {
+    return TYPE_TIPS[type] || '';
+  }
+
   /* 根据和弦名查找和弦对象 */
   function findChord(key, name) {
     const k = KEYS[key];
@@ -84,9 +163,12 @@
     return k.chords.find(c => c.name === name) || null;
   }
 
-  /* 获取任务的和弦完整对象列表 */
+  /* 获取任务的和弦完整对象列表（附带各自所属调 _key，供显示使用） */
   function getTaskChords(task) {
-    return task.chords.map(c => findChord(c.key, c.name)).filter(Boolean);
+    return task.chords.map(c => {
+      const ch = findChord(c.key, c.name);
+      return ch ? Object.assign({}, ch, { _key: c.key }) : null;
+    }).filter(Boolean);
   }
 
   /* ---------- 持久化 ---------- */
@@ -109,7 +191,7 @@
     }
     els.taskList.innerHTML = tasks.map(t => {
       const active = t.id === currentTaskId ? ' active' : '';
-      const chips = t.chords.slice(0, 6).map(c => `<span class="chip">${esc(c.name)}</span>`).join('');
+      const chips = t.chords.slice(0, 6).map(c => `<span class="chip">${noteHTML(c.name)}</span>`).join('');
       const more = t.chords.length > 6 ? `<span class="chip">+${t.chords.length - 6}</span>` : '';
       return `<div class="task-item${active}" data-id="${t.id}">
         <div class="t-head">
@@ -157,10 +239,10 @@
     const order = task.mode === 'random' ? shuffledOrder.map(idx => chords[idx]) : chords;
     const activeIdx = task.mode === 'random' ? shuffledIdx : currentChordIdx;
     const items = order.map((c, i) => {
-      const active = isRunning && i === activeIdx ? ' active' : '';
-      const name = showName ? `<div class="p-name">${esc(c.name)}</div>` : '';
-      const finger = showFinger ? `<div class="p-finger">${buildChordDiagramSVG(c)}</div>` : '';
-      return `<div class="preview-item${active}">${name}${finger}</div>`;
+      const active = i === activeIdx ? ' active' : '';
+      const name = showName ? `<div class="p-name">${noteHTML(c.name)}</div>` : '';
+      const finger = showFinger ? `<div class="p-finger">${buildChordDiagramSVG(c, { preview: true })}</div>` : '';
+      return `<div class="preview-item${active}" data-idx="${i}">${name}${finger}</div>`;
     }).join('');
     els.previewList.innerHTML = items;
     scrollPreviewToActive();
@@ -192,11 +274,13 @@
    * 竖线=6根弦（左→右：6弦→1弦），横线=品丝，圆点=按弦位置
    * 顶部 X=不弹，O=空弦；自动确定起始品位；名称在下方居中
    * ============================================================ */
-  function buildChordDiagramSVG(chord) {
+  function buildChordDiagramSVG(chord, opts) {
+    const isPreview = !!(opts && opts.preview); // 预览紧凑模式：指板居中、不带品号/箭头/名称
     const f = chord.fingering; // 6个对象，string 6..1
     const frets = f.map(x => x.fret);
-    const maxFret = Math.max(...frets.filter(x => x > 0), 0);
-    const minFret = Math.min(...frets.filter(x => x > 0), 0);
+    const posFrets = frets.filter(x => x > 0);
+    const maxFret = posFrets.length ? Math.max(...posFrets) : 0;
+    const minFret = posFrets.length ? Math.min(...posFrets) : 0;
 
     // 确定起始品位：若最大品位<=4 从1品开始；否则从最小品位开始
     let startFret = 1;
@@ -210,10 +294,12 @@
     const stringGap = 22;      // 弦间距
     const fretGap = 26;        // 品间距
     const marginTop = 24;      // 顶部留白（放 X/O 标记）
-    const marginLeft = 22;     // 左侧留白（放品位数字）
-    const nameSpace = 26;      // 底部留白（放和弦名称）
+    // 预览：左右留白对称、底部留白小，指板在视口中居中；详情：右侧留白放品号、底部放箭头与名称
+    const marginLeft = isPreview ? 14 : 22;
+    const rightMargin = isPreview ? 14 : 42;
+    const nameSpace = isPreview ? 24 : 58;
     const dotR = 8.5;          // 按弦圆点半径
-    const W = marginLeft + stringGap * 5 + 20;
+    const W = marginLeft + stringGap * 5 + rightMargin;
     const H = marginTop + fretGap * fretCount + nameSpace;
 
     // 弦的 x 坐标（6弦在左）
@@ -223,11 +309,6 @@
 
     let svg = '';
     svg += `<svg class="chord-diagram" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
-
-    // 品位数字（左侧）
-    if (startFret > 1) {
-      svg += `<text x="${marginLeft - 8}" y="${fretY(1) + fretGap/2 + 4}" text-anchor="end" class="cd-fretnum">${startFret}fr</text>`;
-    }
 
     // 上弦枕（粗线）
     svg += `<line x1="${stringX(0)}" y1="${fretY(0)}" x2="${stringX(5)}" y2="${fretY(0)}" class="cd-nut"/>`;
@@ -240,6 +321,13 @@
     // 弦线
     for (let i = 0; i < 6; i++) {
       svg += `<line x1="${stringX(i)}" y1="${fretY(0)}" x2="${stringX(i)}" y2="${fretY(fretCount)}" class="cd-string"/>`;
+    }
+
+    // 每品品号（1弦右侧，标在各品间，避免品位跨度大时看不清；预览紧凑模式不显示）
+    if (!isPreview) {
+      for (let n = 0; n < fretCount; n++) {
+        svg += `<text x="${stringX(5) + 13}" y="${fretY(n) + fretGap/2 + 3}" class="cd-fretnum">${startFret + n}</text>`;
+      }
     }
 
     // 顶部 X / O 标记
@@ -266,8 +354,17 @@
       svg += `<text x="${x}" y="${y + 3.5}" text-anchor="middle" class="cd-finger">${finger}</text>`;
     }
 
-    // 和弦名称（下方居中）
-    svg += `<text x="${W/2}" y="${H - 8}" text-anchor="middle" class="cd-name">${esc(chord.name)}</text>`;
+    // 1弦→6弦 方向箭头 + 弦名 + 和弦名称（仅详情模式；预览用 .p-name 显示名称）
+    if (!isPreview) {
+      const arrowY = fretY(fretCount) + 18;
+      const headSize = 4.5;
+      svg += `<line x1="${stringX(5)}" y1="${arrowY}" x2="${stringX(0)}" y2="${arrowY}" class="cd-arrow"/>`;
+      svg += `<path d="M ${stringX(0)} ${arrowY} L ${stringX(0) + headSize} ${arrowY - headSize} L ${stringX(0) + headSize} ${arrowY + headSize} Z" class="cd-arrow-head"/>`;
+      svg += `<text x="${stringX(5) - 2}" y="${arrowY - 8}" text-anchor="end" class="cd-stringtag">1弦</text>`;
+      svg += `<text x="${stringX(0) + 2}" y="${arrowY - 8}" text-anchor="start" class="cd-stringtag">6弦</text>`;
+
+      svg += `<text x="${W/2}" y="${H - 8}" text-anchor="middle" class="cd-name">${svgNameTspans(chord.name)}</text>`;
+    }
 
     svg += '</svg>';
     return svg;
@@ -275,17 +372,25 @@
 
   /* ---------- 渲染：和弦详情 ---------- */
   function renderChord(task, chord) {
-    const key = KEYS[task.key];
+    const key = KEYS[chord._key] || KEYS[task.key]; // 跟随当前和弦所属调（兼容旧数据回退任务 key）
 
-    // 简化模式：仅显示名称、调式、级数、属性，居中放大
+    // 简化模式：名称、调式、级数、属性、组成音、根音所在弦，居中放大
     if (task.displayMode === 'simple') {
+      const toneChips = chord.tones.map(n =>
+        `<span class="st-chip">${noteHTML(n)}</span>`).join('');
       els.contentArea.innerHTML = `<div class="simple-card">
-        <div class="simple-name">${esc(chord.name)}</div>
+        <div class="simple-name">${noteHTML(chord.name)}</div>
         <div class="simple-meta">
           <span class="tag">${esc(key.name)}</span>
-          <span class="tag">${esc(chord.degree)}级</span>
-          <span class="tag">${CHORD_TYPES[chord.type].label}</span>
+          <span class="tag" title="${degreeTitle(chord.degree)}">${esc(chord.degree)}级</span>
+          <span class="tag" title="${typeTitle(chord.type)}">${CHORD_TYPES[chord.type].label}</span>
         </div>
+        <div class="simple-divider"></div>
+        <div class="simple-tones">
+          <span class="st-label" title="和弦由哪些音构成（从根音开始排列）">组成音</span>
+          <div class="st-chips">${toneChips}</div>
+        </div>
+        <div class="simple-root" title="根音：和弦中最基础的音，弹奏时先拨这根弦">🎯 根音所在弦：<strong class="sr-str">第 ${chord.root.string} 弦</strong>（<span class="sr-note">${noteHTML(chord.root.note)}</span>）</div>
       </div>`;
       return;
     }
@@ -295,70 +400,162 @@
     let html = '';
 
 
-    // 竖向根音弦位指示器：6根竖线，从左到右 6弦→1弦，从粗到细，根音弦高亮
-    function buildRootStringsHTML() {
-      const rootStr = chord.root.string; // 根音所在弦（1-6）
-      const strings = [6,5,4,3,2,1].map(n => {
-        const isRoot = n === rootStr;
-        return `<div class="rsv-string${isRoot ? ' active' : ''}">
-          <div class="rsv-line"></div>
-          <div class="rsv-label">${n}弦</div>
-          ${isRoot ? `<div class="rsv-mark">🎯</div>` : ''}
-        </div>`;
-      }).join('');
-      return `<div class="root-strings-v">${strings}</div>
-        <div class="root-tip">🎯 先拨 <span class="strong">第 ${rootStr} 弦</span>（根音 ${esc(chord.root.note)}）</div>`;
+    // 和弦音位指板：固定 0-8 品，弦按粗细，标全部音名，和弦音高亮、根音圆章
+    function buildRootFretboardSVG() {
+      const rootStr = chord.root.string;
+      const rootPC = NOTE_PC[chord.root.note];
+      const tonePCs = new Set(chord.tones.map(n => NOTE_PC[n]));
+      const rootFret = chord.fingering.find(f => f.string === rootStr).fret;
+      const maxFret = 8; // 固定 0-8 品，视觉稳定 + 便于记忆指板
+      // 实际按下的位置（品位>0）
+      const pressed = new Set();
+      chord.fingering.forEach(f => { if (f.fret > 0) pressed.add(f.string + ':' + f.fret); });
+
+      const stringGap = 28;
+      const fretGap = 24;
+      const marginTop = 30;
+      const marginBottom = 28;
+      const marginLeft = 12;
+      const stringWidth = [6, 5, 4, 3.2, 2.4, 1.8]; // 6弦→1弦 粗细
+      const stringX = i => marginLeft + i * stringGap;
+      const fretY = n => marginTop + n * fretGap;
+      const fretNumX = stringX(5) + 14;
+      const W = fretNumX + 14;
+      const H = marginTop + fretGap * (maxFret + 1) + marginBottom;
+
+      let svg = `<svg class="rf-board" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+
+      // 按品范围矩形框：圈住和弦弹奏区间
+      const fretted = chord.fingering.filter(f => f.fret > 0);
+      const minF = fretted.length ? Math.min(...fretted.map(f => f.fret)) : 0;
+      const maxF = fretted.length ? Math.max(...fretted.map(f => f.fret)) : 0;
+      const hasOpen = chord.fingering.some(f => f.fret === 0);
+      const boxMin = hasOpen ? 0 : minF; // 框内品范围（框内和弦音加粗、框外统一显示）
+      const boxMax = maxF;
+      if (fretted.length) {
+        const rx = stringX(0) - 11;            // 左：6弦外留白
+        const rw = (W - 2) - rx;               // 右：包到品号列外侧
+        const ry = hasOpen ? fretY(0) - 24 : fretY(minF - 1) + 2; // 上：有空弦从空弦行上方起，否则从最上按品的上一品间起
+        const rh = fretY(maxF) - 2 - ry;       // 下：最末按品与下一品之间
+        svg += `<rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" class="rf-range"/>`;
+      }
+
+      // 弦（先画，音名骑在弦上）
+      for (let i = 0; i < 6; i++) {
+        const str = 6 - i;
+        const f = chord.fingering.find(x => x.string === str);
+        const muted = !f || f.fret < 0;
+        const cls = muted ? 'rf-string muted' : (str === rootStr ? 'rf-string root' : 'rf-string');
+        svg += `<line x1="${stringX(i)}" y1="${fretY(0)}" x2="${stringX(i)}" y2="${fretY(maxFret)}" stroke-width="${stringWidth[i]}" class="${cls}"/>`;
+      }
+
+      // 弦枕与品线
+      svg += `<line x1="${stringX(0)}" y1="${fretY(0)}" x2="${stringX(5)}" y2="${fretY(0)}" class="rf-nut"/>`;
+      for (let n = 1; n <= maxFret; n++) {
+        svg += `<line x1="${stringX(0)}" y1="${fretY(n)}" x2="${stringX(5)}" y2="${fretY(n)}" class="rf-fret"/>`;
+      }
+
+      // 品号（右侧，0-8）
+      for (let n = 0; n <= maxFret; n++) {
+        const y = n === 0 ? fretY(0) - 4 : fretY(n) - fretGap / 2 + 4;
+        svg += `<text x="${fretNumX}" y="${y}" text-anchor="middle" class="rf-fretnum">${n}</text>`;
+      }
+
+      // 音名（骑在弦上；闷弦只画 ✕ 不标音）
+      for (let i = 0; i < 6; i++) {
+        const str = 6 - i;
+        const f = chord.fingering.find(x => x.string === str);
+        const muted = !f || f.fret < 0;
+        const x = stringX(i);
+        if (muted) {
+          svg += `<text x="${x}" y="${fretY(0) - 10}" text-anchor="middle" class="rf-x">✕</text>`;
+          continue;
+        }
+        for (let n = 0; n <= maxFret; n++) {
+          const note = noteAt(key, str, n);
+          const isRootPos = str === rootStr && n === rootFret;
+          const isTone = tonePCs.has(NOTE_PC[note]);
+          const isInside = n >= boxMin && n <= boxMax; // 框外音统一显示，仅框内和弦音加粗
+          const isPressed = isTone && pressed.has(str + ':' + n);
+          const y = n === 0 ? fretY(0) - 4 : fretY(n) - fretGap / 2 + 4;
+          if (isRootPos) {
+            const cy = n === 0 ? fretY(0) - 11 : fretY(n) - fretGap / 2;
+            svg += `<g><circle cx="${x}" cy="${cy}" r="11" class="rf-rootbadge"/><text x="${x}" y="${y}" text-anchor="middle" class="rf-note root">${svgNoteTspans(note, x)}</text></g>`;
+          } else if (isPressed) {
+            const cy = fretY(n) - fretGap / 2;
+            svg += `<g><circle cx="${x}" cy="${cy}" r="11" class="rf-tonebadge"/><text x="${x}" y="${y}" text-anchor="middle" class="rf-note tone">${svgNoteTspans(note, x)}</text></g>`;
+          } else {
+            const cls = (isTone && isInside) ? ' tone' : '';
+            svg += `<text x="${x}" y="${y}" text-anchor="middle" class="rf-note${cls}">${svgNoteTspans(note, x)}</text>`;
+          }
+        }
+      }
+
+      // 底部弦号
+      for (let i = 0; i < 6; i++) {
+        const str = 6 - i;
+        svg += `<text x="${stringX(i)}" y="${H - 8}" text-anchor="middle" class="rf-strlabel${str === rootStr ? ' root' : ''}">${str}弦</text>`;
+      }
+
+      svg += '</svg>';
+      return svg;
     }
 
-    // ===== ① 基本属性卡片（顶部横向）：调式、级数、属性、调式音阶 =====
+    // ===== ① 基本属性卡片（顶部横向）：调式、级数、属性、调式音阶、构成音 =====
     if (has('basic')) {
       const scaleChips = key.scale.map(n =>
-        `<span class="scale-chip${n === chord.root.note ? ' root' : ''}">${esc(n)}</span>`).join('');
+        `<span class="scale-chip${n === chord.root.note ? ' root' : ''}">${noteHTML(n)}</span>`).join('');
+      const toneChips = chord.tones.map((n, i) =>
+        `<span class="tone-chip" title="构成音级数：${esc(chord.toneNums[i])}"><span class="t-note">${noteHTML(n)}</span><span class="t-num">${esc(chord.toneNums[i])}</span></span>`).join('');
       html += `<div class="basic-card">
-        <div class="basic-head">
-          <div class="chord-name">${esc(chord.name)}</div>
-          <div class="chord-meta">
-            <span class="tag">${esc(key.name)}</span>
-            <span class="tag">${esc(chord.degree)}级</span>
-            <span class="tag">${CHORD_TYPES[chord.type].label}</span>
+        <div class="basic-layout">
+          <div class="chord-name">${noteHTML(chord.name)}</div>
+          <div class="basic-right">
+            <div class="basic-scale">
+              <span class="bs-label">${esc(key.name)}调式音阶</span>
+              <div class="scale-chips">${scaleChips}</div>
+            </div>
+            <div class="basic-tones">
+              <span class="bs-label">构成音</span>
+              ${toneChips}
+            </div>
+            <div class="chord-meta">
+              <span class="tag">${esc(key.name)}</span>
+              <span class="tag" title="${degreeTitle(chord.degree)}">${esc(chord.degree)}级</span>
+              <span class="tag" title="${typeTitle(chord.type)}">${CHORD_TYPES[chord.type].label}</span>
+            </div>
           </div>
-        </div>
-        <div class="basic-scale">
-          <span class="bs-label">${esc(key.name)}调式音阶</span>
-          <div class="scale-chips">${scaleChips}</div>
         </div>
       </div>`;
     }
 
-    // ===== ② 详细解析卡片：构成音、根音、指法 =====
+    // ===== ② 详细解析卡片：根音、指法 =====
     let detailCard = '';
     if (has('detail')) {
       const diagram = buildChordDiagramSVG(chord);
-      const toneChips = chord.tones.map((n, i) =>
-        `<span class="tone-chip"><span class="t-note">${esc(n)}</span><span class="t-num">${esc(chord.toneNums[i])}</span></span>`).join('');
-      detailCard = `<div class="info-card detail-card"><div class="ic-title"><span class="ic-icon">🔍</span>详细解析</div>
+      detailCard = `<div class="info-card detail-card">
         <div class="detail-body">
-          <div class="detail-finger">
-            <div class="df-title">指法</div>
-            <div class="fingering-wrap">
-              ${diagram}
-              <div class="fingering-legend">
-                <div class="fl-title">指法说明</div>
-                <div class="fl-row"><span class="fl-sym cd-x">✕</span> 不弹</div>
-                <div class="fl-row"><span class="fl-sym cd-o">○</span> 空弦</div>
-                <div class="fl-row"><span class="fl-sym cd-dot-s">●</span> 按弦（数字=手指）</div>
-                <div class="fl-row"><span class="fl-sym">1</span>食指 <span class="fl-sym">2</span>中指 <span class="fl-sym">3</span>无名指 <span class="fl-sym">4</span>小指</div>
-                <div class="fl-text">${esc(fingerStr(chord))}（6弦→1弦）</div>
+          <div class="detail-cols">
+            <div class="detail-finger">
+              <div class="df-head">
+                <div class="df-title">指法</div>
+              </div>
+              <div class="fingering-wrap">
+                ${diagram}
+                <div class="fingering-legend">
+                  <div class="fl-title">指法说明</div>
+                  <div class="fl-row"><span class="fl-sym cd-x">✕</span> 不弹</div>
+                  <div class="fl-row"><span class="fl-sym cd-o">○</span> 空弦</div>
+                  <div class="fl-row"><span class="fl-sym cd-dot-s">●</span> 按弦（数字=手指）</div>
+                  <div class="fl-row"><span class="fl-sym">1</span>食指 <span class="fl-sym">2</span>中指 <span class="fl-sym">3</span>无名指 <span class="fl-sym">4</span>小指</div>
+                  <div class="fl-text">${esc(fingerStr(chord))}（6弦→1弦）</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="detail-tones">
-            <div class="dt-title">构成音</div>
-            <div class="tone-chips">${toneChips}</div>
-          </div>
-          <div class="fingering-root">
-            <div class="fr-title"><span class="ic-icon">🎯</span>先拨哪根弦</div>
-            ${buildRootStringsHTML()}
+            <div class="fingering-root">
+              <div class="fr-title"><span class="ic-icon">🎯</span>和弦音位（根音）</div>
+              ${buildRootFretboardSVG()}
+            </div>
           </div>
         </div>
       </div>`;
@@ -415,7 +612,7 @@
     const task = tasks.find(t => t.id === currentTaskId);
     if (!task) {
       els.contentArea.innerHTML = '<div class="content-empty"><div class="big-icon">🎸</div><p>请从右侧选择一个训练任务<br>或新建一个任务开始练习</p></div>';
-      els.startBtn.disabled = true;
+      updateControls();
       els.speedTag.textContent = '--次/分钟';
       els.modeTag.textContent = '';
       return;
@@ -423,12 +620,12 @@
     const chords = getTaskChords(task);
     if (!chords.length) {
       els.contentArea.innerHTML = '<div class="content-empty"><div class="big-icon">🎸</div><p>该任务没有可选和弦</p></div>';
-      els.startBtn.disabled = true;
+      updateControls();
       els.speedTag.textContent = '--次/分钟';
       els.modeTag.textContent = '';
       return;
     }
-    els.startBtn.disabled = false;
+    updateControls();
     els.speedTag.textContent = task.speed + '次/分钟';
     els.modeTag.textContent = task.mode === 'random' ? '随机' : '顺序';
 
@@ -447,24 +644,30 @@
   }
 
   /* ---------- 训练控制 ---------- */
-  function startTraining() {
+  /* 是否存在可选任务 */
+  function hasValidTask() {
+    const task = tasks.find(t => t.id === currentTaskId);
+    return !!task && getTaskChords(task).length > 0;
+  }
+
+  /* 更新控制按钮状态（开始 / 暂停 / 继续 / 重新开始） */
+  function updateControls() {
+    const enabled = hasValidTask();
+    const txt = els.startBtn.querySelector('.btn-text');
+    els.startBtn.disabled = !enabled;
+    els.startBtn.classList.toggle('paused', trainingState === 'running');
+    els.startBtn.classList.toggle('resuming', trainingState === 'paused');
+    if (trainingState === 'running') txt.textContent = '⏸ 暂停';
+    else if (trainingState === 'paused') txt.textContent = '▶ 继续';
+    else txt.textContent = '▶ 开始';
+    els.restartBtn.disabled = !enabled || trainingState === 'idle';
+  }
+
+  /* 启动自动转换定时器 */
+  function startTimer() {
     const task = tasks.find(t => t.id === currentTaskId);
     if (!task) return;
     const chords = getTaskChords(task);
-    if (!chords.length) return;
-
-    isRunning = true;
-    currentChordIdx = 0;
-    // 随机模式：生成乱序集合
-    if (task.mode === 'random') {
-      shuffledOrder = shuffle(chords.map((_, i) => i));
-      shuffledIdx = 0;
-    }
-    els.startBtn.classList.add('paused');
-    els.startBtn.querySelector('.btn-text').textContent = '⏸ 暂停练习';
-    renderNavbar();
-    renderContent();
-
     const interval = 60000 / task.speed;
     timer = setInterval(() => {
       if (task.mode === 'random') {
@@ -484,14 +687,56 @@
     }, interval);
   }
 
+  /* 开始练习（idle → running，从头开始） */
+  function startTraining() {
+    const task = tasks.find(t => t.id === currentTaskId);
+    if (!task) return;
+    const chords = getTaskChords(task);
+    if (!chords.length) return;
 
-  function pauseTraining() {
-    isRunning = false;
     clearInterval(timer);
     timer = null;
-    els.startBtn.classList.remove('paused');
-    els.startBtn.querySelector('.btn-text').textContent = '▶ 开始练习';
+    currentChordIdx = 0;
+    // 随机模式：生成乱序集合
+    if (task.mode === 'random') {
+      shuffledOrder = shuffle(chords.map((_, i) => i));
+      shuffledIdx = 0;
+    }
+    trainingState = 'running';
+    updateControls();
     renderNavbar();
+    renderContent();
+    startTimer();
+  }
+
+  /* 暂停（running → paused，保持当前位置） */
+  function pauseTraining() {
+    trainingState = 'paused';
+    clearInterval(timer);
+    timer = null;
+    updateControls();
+    renderNavbar();
+  }
+
+  /* 继续（paused → running，从当前和弦继续转换） */
+  function resumeTraining() {
+    trainingState = 'running';
+    updateControls();
+    startTimer();
+  }
+
+  /* 重新开始（任意状态 → running，从头开始） */
+  function restartTraining() {
+    startTraining();
+    toast('已重新开始');
+  }
+
+  /* 重置（清空计时器回到初始状态） */
+  function resetTraining() {
+    trainingState = 'idle';
+    clearInterval(timer);
+    timer = null;
+    updateControls();
   }
 
   /* ---------- 任务编辑弹窗 ---------- */
@@ -626,7 +871,7 @@
 
   function chordChip(key, c, selected) {
     const sel = selected.includes(key + ':' + c.name) ? ' selected' : '';
-    return `<span class="cs-chord${sel}" data-key="${key}" data-name="${c.name}">${esc(c.name)}</span>`;
+    return `<span class="cs-chord${sel}" data-key="${key}" data-name="${c.name}">${noteHTML(c.name)}</span>`;
   }
 
   /* 从选择器获取选中的和弦 */
@@ -657,7 +902,7 @@
     els.orderList.innerHTML = arr.map((c, i) => `
       <div class="order-item" data-idx="${i}">
         <div class="o-index">${i + 1}</div>
-        <div class="o-name">${esc(c.name)}</div>
+        <div class="o-name">${noteHTML(c.name)}</div>
         <div class="o-arrows">
           <button data-move="up" ${i === 0 ? 'disabled' : ''}>↑</button>
           <button data-move="down" ${i === arr.length - 1 ? 'disabled' : ''}>↓</button>
@@ -855,7 +1100,7 @@
             tasks = tasks.filter(t => t.id !== id);
             if (currentTaskId === id) {
               currentTaskId = null;
-              pauseTraining();
+              resetTraining();
             }
             saveTasks();
             renderTaskList();
@@ -868,21 +1113,84 @@
       // 选中任务
       currentTaskId = id;
       currentChordIdx = 0;
-      pauseTraining();
+      resetTraining();
       renderTaskList();
       renderNavbar();
       renderContent();
     });
 
-    // 开始/暂停
+    // 开始 / 暂停 / 继续
     els.startBtn.addEventListener('click', () => {
-      if (isRunning) pauseTraining();
+      if (trainingState === 'running') pauseTraining();
+      else if (trainingState === 'paused') resumeTraining();
       else startTraining();
     });
 
-    // 汉堡菜单（窄屏）
-    els.hamburgerBtn.addEventListener('click', () => els.sidePanel.classList.add('open'));
-    els.closeDrawerBtn.addEventListener('click', () => els.sidePanel.classList.remove('open'));
+    // 重新开始
+    els.restartBtn.addEventListener('click', restartTraining);
+
+    // 预览区拖拽滚动（鼠标/触摸统一用 Pointer Events）
+    const previewDrag = { active: false, startX: 0, startScroll: 0, moved: false };
+    els.previewList.addEventListener('pointerdown', e => {
+      previewDrag.active = true;
+      previewDrag.startX = e.clientX;
+      previewDrag.startScroll = els.previewList.scrollLeft;
+      previewDrag.moved = false;
+      els.previewList.classList.add('dragging');
+      e.preventDefault();
+    });
+    window.addEventListener('pointermove', e => {
+      if (!previewDrag.active) return;
+      const dx = e.clientX - previewDrag.startX;
+      if (Math.abs(dx) > 5) previewDrag.moved = true;
+      els.previewList.scrollLeft = previewDrag.startScroll - dx;
+    });
+    window.addEventListener('pointerup', () => {
+      previewDrag.active = false;
+      els.previewList.classList.remove('dragging');
+    });
+    window.addEventListener('pointercancel', () => {
+      previewDrag.active = false;
+      els.previewList.classList.remove('dragging');
+    });
+
+    // 预览和弦点击：暂停自动转换并立即切换到该和弦（拖拽滑动后忽略本次点击）
+    els.previewList.addEventListener('click', e => {
+      if (previewDrag.moved) { previewDrag.moved = false; return; }
+      const item = e.target.closest('.preview-item');
+      if (!item) return;
+      const idx = parseInt(item.dataset.idx, 10);
+      if (isNaN(idx)) return;
+      const task = tasks.find(t => t.id === currentTaskId);
+      if (!task) return;
+      const chords = getTaskChords(task);
+      if (!chords.length) return;
+      // 随机模式按乱序集合、顺序模式按编排顺序换算实际索引
+      if (task.mode === 'random') {
+        shuffledIdx = idx;
+        currentChordIdx = shuffledOrder[shuffledIdx % shuffledOrder.length];
+      } else {
+        currentChordIdx = idx % chords.length;
+      }
+      // 若正在自动转换则先暂停，停在当前选中的和弦
+      if (trainingState === 'running') pauseTraining();
+      renderNavbar();
+      renderContent();
+    });
+
+    // 汉堡菜单：打开抽屉并显示遮罩
+    const openDrawer = () => {
+      els.sidePanel.classList.add('open');
+      els.drawerBackdrop.classList.add('show');
+    };
+    const closeDrawer = () => {
+      els.sidePanel.classList.remove('open');
+      els.drawerBackdrop.classList.remove('show');
+    };
+    els.hamburgerBtn.addEventListener('click', openDrawer);
+    els.closeDrawerBtn.addEventListener('click', closeDrawer);
+    // 点击任务栏以外的区域关闭
+    els.drawerBackdrop.addEventListener('click', closeDrawer);
 
     // 导入导出
     els.exportBtn.addEventListener('click', exportTasks);

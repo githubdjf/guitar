@@ -16,7 +16,7 @@ input,select{font-family:inherit}
 .panel-title{font-size:15px;font-weight:700;color:var(--wood-dark);display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .panel-title .dot{width:8px;height:8px;background:var(--amber);border-radius:50%;flex-shrink:0}
 .navbar{background:linear-gradient(135deg,var(--wood) 0%,var(--wood-dark) 100%);border-radius:var(--radius-lg);padding:18px 20px;color:#fff;box-shadow:var(--shadow-lg)}
-.navbar-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.navbar-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .navbar-left{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .navbar-task-name{font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .navbar-task-name .icon{font-size:20px}
@@ -30,50 +30,66 @@ input,select{font-family:inherit}
 
 
 .preview-label{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:8px;font-weight:600}
-.preview-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.preview-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;cursor:grab;touch-action:pan-y;user-select:none}
+.preview-list.dragging{cursor:grabbing}
 .preview-list::-webkit-scrollbar{height:4px}
 .preview-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:4px}
-.preview-item{flex-shrink:0;background:rgba(255,255,255,.12);border:2px solid transparent;border-radius:12px;padding:8px 10px;text-align:center;min-width:56px;transition:all .2s ease}
+.preview-item{flex-shrink:0;background:rgba(255,255,255,.12);border:2px solid transparent;border-radius:12px;padding:8px 10px;text-align:center;min-width:56px;transition:all .2s ease;cursor:pointer}
+.preview-item:hover:not(.active){border-color:rgba(255,255,255,.45);transform:translateY(-1px)}
 .preview-item.active{background:var(--amber);border-color:#fff;color:#3E2F1C}
 .preview-item .p-name{font-size:15px;font-weight:800}
 .preview-item .p-finger{font-size:11px;color:rgba(255,255,255,.85);margin-top:2px;font-family:monospace}
 .preview-item.active .p-finger{color:#3E2F1C}
 /* 预览项内的和弦图（缩小显示） */
 .preview-item .p-finger .chord-diagram{width:64px;background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);padding:2px}
-.preview-item .p-finger .chord-diagram .cd-name{font-size:8px;fill:currentColor}
 .preview-item .p-finger .chord-diagram .cd-nut{stroke:currentColor;stroke-width:3}
 .preview-item .p-finger .chord-diagram .cd-fret{stroke:currentColor;stroke-width:1}
 .preview-item .p-finger .chord-diagram .cd-string{stroke:currentColor;stroke-width:1}
 .preview-item .p-finger .chord-diagram .cd-dot{fill:currentColor;stroke:currentColor}
 .preview-item .p-finger .chord-diagram .cd-finger{font-size:6px;fill:var(--wood-dark)}
 .preview-item .p-finger .chord-diagram .cd-xo{font-size:8px}
-.preview-item .p-finger .chord-diagram .cd-fretnum{font-size:6px;fill:currentColor}
 .content-area{flex:1;display:flex;flex-direction:column;gap:16px}
 .content-empty{text-align:center;padding:60px 20px;color:var(--text-secondary)}
 .content-empty .big-icon{font-size:56px;margin-bottom:16px}
 .content-empty p{font-size:15px;line-height:1.7}
-/* ===== 简化模式卡片（居中放大） ===== */
-.simple-card{background:linear-gradient(135deg,var(--wood-light) 0%,var(--wood) 100%);border-radius:var(--radius-lg);color:#fff;box-shadow:var(--shadow-lg);padding:48px 32px;text-align:center;max-width:520px;margin:0 auto;width:100%}
-.simple-card .simple-name{font-size:72px;font-weight:900;line-height:1;margin-bottom:20px}
-.simple-card .simple-meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.simple-card .simple-meta .tag{background:rgba(255,255,255,.2);padding:6px 14px;border-radius:999px;font-size:15px;font-weight:700}
+/* ===== 简化模式卡片（居中放大 · 精致排版） ===== */
+.simple-card{position:relative;background:linear-gradient(160deg,var(--wood-light) 0%,var(--wood) 48%,var(--wood-dark) 100%);border-radius:28px;color:#fff;box-shadow:0 18px 44px rgba(107,66,38,.32);padding:52px 40px 40px;text-align:center;max-width:680px;margin:10px auto;width:100%;border:1px solid rgba(255,255,255,.14);overflow:hidden;isolation:isolate}
+.simple-card::before{content:'🎸';position:absolute;top:16px;left:20px;font-size:26px;opacity:.4;z-index:0}
+.simple-card::after{content:'';position:absolute;top:-90px;right:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.07);z-index:0}
+.simple-card>*{position:relative;z-index:1}
+.simple-card .simple-name{font-size:104px;font-weight:900;line-height:1.06;letter-spacing:2px;text-shadow:0 8px 28px rgba(0,0,0,.28),0 2px 0 rgba(255,255,255,.18);margin-bottom:26px}
+.simple-card .simple-name .note-acc{color:var(--amber-light)}
+.simple-card .simple-name .note-suffix{font-size:.5em;font-weight:800}
+.simple-card .simple-meta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.simple-card .simple-meta .tag{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:7px 16px;border-radius:999px;font-size:14px;font-weight:700;backdrop-filter:blur(4px)}
+.simple-card .simple-divider{width:72px;height:2px;background:rgba(255,255,255,.3);margin:0 auto 24px;border-radius:2px}
+.simple-card .simple-tones{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.simple-card .simple-tones .st-label{font-size:13px;font-weight:700;color:rgba(255,255,255,.85)}
+.simple-card .st-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.simple-card .st-chip{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:4px 12px;font-size:17px;font-weight:800}
+.simple-card .simple-root{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 20px;font-size:14px;font-weight:700}
+.simple-card .simple-root .sr-str{color:var(--amber-light)}
+.simple-card .simple-root .sr-note{color:var(--amber-light);font-weight:900;margin-left:4px}
+@media(max-width:600px){.simple-card{padding:40px 20px 32px}.simple-card .simple-name{font-size:76px}}
 
-/* ===== 基本属性卡片（顶部横向） ===== */
+/* ===== 基本属性卡片（顶部横向 · 左右结构） ===== */
 .basic-card{background:linear-gradient(135deg,var(--wood-light) 0%,var(--wood) 100%);border-radius:var(--radius-lg);color:#fff;box-shadow:var(--shadow);padding:20px}
-
-.basic-card .basic-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.basic-card .chord-name{font-size:40px;font-weight:900;line-height:1}
-.basic-card .chord-meta{font-size:13px;color:rgba(255,255,255,.9);line-height:1.6}
-.basic-card .chord-meta .tag{display:inline-block;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:6px;margin-right:6px;font-weight:600}
-.basic-card .basic-scale{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.2);flex-wrap:wrap}
+.basic-card .basic-layout{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
+.basic-card .chord-name{font-size:64px;font-weight:900;line-height:1;text-align:center;text-shadow:0 4px 16px rgba(0,0,0,.2)}
+.basic-card .basic-right{display:flex;flex-direction:column;gap:10px;min-width:0}
+.basic-card .basic-scale{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.basic-card .basic-tones{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .basic-card .bs-label{font-size:13px;font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap}
 .basic-card .scale-chips{display:flex;flex-wrap:wrap;gap:6px}
 .basic-card .scale-chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 10px;font-size:13px;font-weight:600;color:#fff}
 .basic-card .scale-chip.root{background:var(--amber);color:#3E2F1C;border-color:var(--amber)}
+.basic-card .chord-meta{font-size:13px;color:rgba(255,255,255,.9);line-height:1.6}
+.basic-card .chord-meta .tag{display:inline-block;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:6px;margin-right:6px;font-weight:600}
+@media(max-width:700px){.basic-card .basic-layout{grid-template-columns:1fr;gap:14px}.basic-card .chord-name{font-size:48px}}
 
 /* ===== 详细解析 + 分解和弦 布局 ===== */
 .detail-layout{display:grid;gap:16px;align-items:start}
-.detail-layout.two{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+.detail-layout.two{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
 .detail-layout.single{grid-template-columns:1fr;max-width:640px;margin:0 auto;width:100%}
 .dl-left{min-width:0}
 .dl-right{min-width:0}
@@ -82,38 +98,44 @@ input,select{font-family:inherit}
 .info-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(139,90,43,.12);padding:16px}
 /* 详细解析卡片 */
 .detail-card .detail-body{display:flex;flex-direction:column;gap:16px}
-.detail-card .df-title,.detail-card .dt-title{font-size:13px;font-weight:700;color:var(--wood-dark);margin-bottom:8px}
-.detail-card .detail-tones .tone-chips{display:flex;flex-wrap:wrap;gap:6px}
+.detail-card .df-title{font-size:15px;font-weight:800;color:var(--wood-dark);flex-shrink:0}
+.detail-card .df-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed rgba(139,90,43,.15)}
+/* 指法卡片内部两列：左=指法图+说明，右=和弦音位指板（高度并排不叠加） */
+.detail-card .detail-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:16px;align-items:start}
+@media(max-width:700px){.detail-card .detail-cols{grid-template-columns:1fr}}
 /* 分解和弦卡片 */
 .arpeggio-card .arpeggio-list{display:flex;flex-direction:column;gap:10px}
 
+.tone-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg-warm);border:1px solid rgba(139,90,43,.18);border-radius:999px;padding:3px 10px}
 .tone-chip .t-note{font-size:14px;font-weight:800;color:var(--wood-dark)}
 .tone-chip .t-num{font-size:11px;color:var(--text-secondary)}
 .root-display{display:flex;align-items:center;gap:14px}
 .root-note{width:52px;height:52px;background:linear-gradient(135deg,var(--amber) 0%,var(--amber-light) 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#3E2F1C;box-shadow:0 4px 12px rgba(212,160,23,.3);flex-shrink:0}
 .root-info{font-size:14px;line-height:1.6;flex:1;min-width:0}
 .root-info .strong{font-weight:800;color:var(--wood-dark)}
-/* 竖向根音弦位指示器：6根竖线，从左到右 6弦→1弦，从粗到细，根音弦高亮 */
-.root-strings-v{display:flex;align-items:flex-end;gap:8px;padding:6px 4px}
-.rsv-string{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
-.rsv-string .rsv-line{width:100%;height:64px;border-radius:4px;background:var(--bg-warm);border:1px solid rgba(139,90,43,.2);transition:all .2s ease}
-/* 从粗到细：6弦最粗，1弦最细 */
-.rsv-string:nth-child(1) .rsv-line{width:9px}
-.rsv-string:nth-child(2) .rsv-line{width:8px}
-.rsv-string:nth-child(3) .rsv-line{width:7px}
-.rsv-string:nth-child(4) .rsv-line{width:6px}
-.rsv-string:nth-child(5) .rsv-line{width:5px}
-.rsv-string:nth-child(6) .rsv-line{width:4px}
-.rsv-string .rsv-label{font-size:11px;font-weight:700;color:var(--text-secondary)}
-.rsv-string.active .rsv-line{background:linear-gradient(135deg,var(--amber) 0%,var(--amber-light) 100%);border-color:var(--amber);box-shadow:0 2px 10px rgba(212,160,23,.5)}
-.rsv-string.active .rsv-label{color:var(--wood-dark);font-weight:800}
-.rsv-string .rsv-mark{font-size:16px;line-height:1;animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
-.root-tip{font-size:14px;font-weight:700;color:var(--wood-dark);background:var(--bg-warm);border:1px solid rgba(139,90,43,.15);border-radius:10px;padding:8px 12px;display:inline-block}
-.root-tip .strong{color:var(--amber);font-size:16px}
-/* 指法卡片内的根音区块 */
-.fingering-root{margin-top:16px;padding-top:14px;border-top:1px dashed rgba(139,90,43,.2)}
-.fingering-root .fr-title{font-size:13px;font-weight:700;color:var(--wood-dark);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+/* ===== 和弦音位指板（根音区，固定 0-8 品） ===== */
+.rf-board{width:100%;max-width:280px;display:block;margin:0 auto;background:var(--bg-warm);border:1px solid rgba(139,90,43,.15);border-radius:12px;padding:6px 8px}
+.rf-string{stroke:var(--wood);stroke-linecap:round}
+.rf-string.root{stroke:var(--amber);filter:drop-shadow(0 0 2px rgba(212,160,23,.7))}
+.rf-string.muted{stroke:rgba(138,122,99,.5)}
+.rf-nut{stroke:var(--wood-dark);stroke-width:4}
+.rf-fret{stroke:rgba(139,90,43,.25);stroke-width:1.2}
+.rf-note{font-size:12px;font-weight:400;fill:var(--text-secondary)}
+.rf-note.tone{font-weight:800;fill:var(--wood-dark)}
+.rf-note.root{font-weight:900;fill:#3E2F1C}
+.rf-acc{font-size:.72em}
+.rf-rootbadge{fill:var(--amber);stroke:var(--wood-dark);stroke-width:1}
+.rf-tonebadge{fill:rgba(212,160,23,.16);stroke:var(--amber);stroke-width:1.2}
+.rf-range{fill:rgba(212,160,23,.10);stroke:var(--amber);stroke-width:1.5;rx:8}
+.rf-x{font-size:13px;font-weight:700;fill:rgba(138,122,99,.6)}
+.rf-fretnum{font-size:10px;font-weight:700;fill:var(--text-secondary)}
+.rf-strlabel{font-size:11px;font-weight:700;fill:var(--text-secondary)}
+.rf-strlabel.root{fill:var(--wood-dark);font-weight:900}
+.tag[title]{cursor:help}
+.simple-card [title]{cursor:help}
+.tone-chip[title]{cursor:help}
+/* 指法卡片右列：和弦音位（根音） */
+.fingering-root .fr-title{font-size:15px;font-weight:800;color:var(--wood-dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}
 
 
 .fingering-wrap{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
@@ -132,6 +154,21 @@ input,select{font-family:inherit}
 .chord-diagram .cd-x{fill:var(--red)}
 .chord-diagram .cd-o{fill:var(--green)}
 .chord-diagram .cd-fretnum{font-size:10px;font-weight:700;fill:var(--text-secondary)}
+.chord-diagram .cd-acc{font-size:.8em}
+.chord-diagram .cd-suffix{font-size:.72em}
+/* 1弦→6弦 方向箭头与弦名标注 */
+.chord-diagram .cd-arrow{stroke:var(--text-secondary);stroke-width:1.2;fill:none}
+.chord-diagram .cd-arrow-head{fill:var(--text-secondary)}
+.chord-diagram .cd-stringtag{font-size:9px;font-weight:600;fill:var(--text-secondary)}
+/* 预览缩略图隐藏箭头/品号/弦名标注，避免小图杂乱 */
+.preview-item .chord-diagram .cd-arrow,
+.preview-item .chord-diagram .cd-arrow-head,
+.preview-item .chord-diagram .cd-stringtag,
+.preview-item .chord-diagram .cd-fretnum{display:none}
+/* 音名/和弦名中的升降号：位于基础字母左上角，不放在右边 */
+.note-w{position:relative;display:inline-block;white-space:nowrap}
+.note-acc{position:absolute;left:-.5em;top:-.38em;font-size:.8em;font-weight:700;line-height:1;pointer-events:none}
+.basic-card .chord-name .note-suffix{font-size:.55em;font-weight:800}
 .fingering-legend{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text);line-height:1.5;padding-top:2px}
 .fingering-legend .fl-title{font-size:13px;font-weight:800;color:var(--wood-dark);margin-bottom:2px}
 .fingering-legend .fl-row{display:flex;align-items:center;gap:6px}
@@ -149,11 +186,18 @@ input,select{font-family:inherit}
 .play-btn{background:var(--wood);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:4px;transition:all .2s ease;flex-shrink:0}
 .play-btn:hover{background:var(--wood-dark)}
 .play-btn.playing{background:var(--amber);color:#3E2F1C}
-.btn-start{padding:10px 18px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--amber) 0%,var(--amber-light) 100%);border:none;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.control-group{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.btn-start{padding:10px 18px;font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--amber) 0%,var(--amber-light) 100%);border:none;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;flex-shrink:0}
 .btn-start:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .btn-start:active:not(:disabled){transform:translateY(0)}
 .btn-start:disabled{opacity:.5;cursor:not-allowed}
 .btn-start.paused{background:linear-gradient(135deg,var(--wood) 0%,var(--wood-dark) 100%);color:#fff}
+.btn-start.resuming{background:linear-gradient(135deg,var(--green) 0%,#3a7a38 100%);color:#fff}
+.btn-restart{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:999px;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .3s ease;flex-shrink:0}
+.btn-restart:hover:not(:disabled){background:rgba(255,255,255,.28)}
+.btn-restart:disabled{opacity:.4;cursor:not-allowed}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(62,47,28,.35);z-index:99;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.drawer-backdrop.show{opacity:1;pointer-events:auto}
 .side-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--bg);box-shadow:-8px 0 32px rgba(0,0,0,.2);padding:16px;transform:translateX(100%);transition:transform .3s ease;z-index:100;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
 
 .side-panel.open{transform:translateX(0)}
@@ -252,4 +296,4 @@ input,select{font-family:inherit}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--wood-dark);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);z-index:300;opacity:0;transition:opacity .3s ease;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
 .toast.error{background:var(--red)}
-@media(max-width:600px){.panel{padding:14px}.chord-hero .chord-name{font-size:32px}.navbar{padding:14px 16px}}
+@media(max-width:600px){.panel{padding:14px}.chord-hero .chord-name{font-size:32px}.navbar{padding:14px 16px}.btn-start{padding:8px 12px;font-size:13px}.btn-restart{padding:8px 10px;font-size:12px}}

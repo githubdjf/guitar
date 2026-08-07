@@ -23,9 +23,12 @@
         </div>
 
         <div class="navbar-actions">
-          <button class="btn-start" id="startBtn" disabled>
-            <span class="btn-text">▶ 开始练习</span>
-          </button>
+          <div class="control-group">
+            <button class="btn-start" id="startBtn" disabled>
+              <span class="btn-text">▶ 开始</span>
+            </button>
+            <button class="btn-restart" id="restartBtn" disabled title="重新开始">↻ 重来</button>
+          </div>
           <button class="hamburger" id="hamburgerBtn" title="任务列表">☰</button>
         </div>
       </div>
@@ -64,6 +67,9 @@
     </div>
   </div>
 </div>
+
+<!-- 抽屉遮罩：点击任务栏以外区域关闭 -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
 
 <!-- ===== 任务编辑弹窗 ===== -->
 <div class="modal-overlay" id="taskModal">
@@ -133,7 +139,7 @@
       <div class="form-group">
         <label class="form-label">显示和弦内容</label>
         <div class="radio-group vertical">
-          <label class="radio-option"><input type="radio" name="f-displayMode" value="simple"> 简化（调式、级数、属性、名称）</label>
+          <label class="radio-option"><input type="radio" name="f-displayMode" value="simple"> 简化（调式、级数、属性、名称、组成音、根音所在弦）</label>
           <label class="radio-option"><input type="radio" name="f-displayMode" value="detail" checked> 详细</label>
         </div>
       </div>
@@ -142,8 +148,8 @@
       <div class="form-group hidden-field" id="displayContentFieldGroup">
         <label class="form-label">选择具体内容</label>
         <div class="checkbox-group vertical" id="displayContentField">
-          <label class="checkbox-item"><input type="checkbox" value="basic" checked> 基本属性（调式、级数、属性、调式音阶）</label>
-          <label class="checkbox-item"><input type="checkbox" value="detail" checked> 详细解析（构成音、根音、指法）</label>
+          <label class="checkbox-item"><input type="checkbox" value="basic" checked> 基本属性（调式、级数、属性、调式音阶、构成音）</label>
+          <label class="checkbox-item"><input type="checkbox" value="detail" checked> 详细解析（根音、指法）</label>
           <label class="checkbox-item"><input type="checkbox" value="arpeggio" checked> 分解和弦</label>
         </div>
       </div>

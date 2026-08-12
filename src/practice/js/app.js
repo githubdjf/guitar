@@ -123,6 +123,13 @@
     return `<tspan class="rf-acc" x="${x - 8}" dy="-3.5">${sym}</tspan><tspan x="${x}" dy="0">${esc(letter)}</tspan>`;
   }
 
+  /* 扫弦方向 SVG 箭头（下扫 / 上扫，随 currentColor 变色） */
+  function strumArrowSVG(dir) {
+    return dir === 'd'
+      ? '<svg class="strum-arrow" viewBox="0 0 15 24"><path d="M7.5 2 L7.5 20 M7.5 20 L3 15 M7.5 20 L12 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg class="strum-arrow" viewBox="0 0 15 24"><path d="M7.5 22 L7.5 4 M7.5 4 L3 9 M7.5 4 L12 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  }
+
   /* 和弦级数 → 悬停提示（罗马数字含义） */
   const DEGREE_TIPS = {
     I: '一级和弦（主和弦）：大调主音上的大三和弦，和声最稳定',
@@ -396,7 +403,7 @@
       return;
     }
 
-    const display = task.displayContent || ['basic','detail','arpeggio'];
+    const display = task.displayContent || ['basic','detail','arpeggio','strum'];
     const has = v => display.includes(v);
     let html = '';
 
@@ -576,6 +583,41 @@
       arpeggioCard = `<div class="info-card arpeggio-card"><div class="ic-title"><span class="ic-icon">🎸</span>分解和弦</div><div class="arpeggio-list">${list}</div></div>`;
     }
 
+    // ===== ④ 扫弦节奏卡片 =====
+    let strumCard = '';
+    if (has('strum') && typeof STRUM_PATTERNS !== 'undefined' && STRUM_PATTERNS.length) {
+      const list = STRUM_PATTERNS.map((p, i) => {
+        let grid = '';
+        for (let b = 0; b < 4; b++) {
+          let beatCells = '';
+          for (let s = 0; s < 4; s++) {
+            const k = b * 4 + s;
+            const d = p.slots[k];
+            const cls = d === 'd' ? 'down' : (d === 'u' ? 'up' : 'rest');
+            const content = (d === 'd' || d === 'u') ? strumArrowSVG(d) : '<span class="rest-tick"></span>';
+            beatCells += `<div class="strum-cell ${cls}${s === 0 ? ' strong' : ''}" data-slot="${k}">${content}</div>`;
+          }
+          grid += `<div class="strum-beat"><div class="strum-beats">${beatCells}</div><div class="strum-beat-label">${b + 1}</div></div>`;
+        }
+        return `<div class="strum-pattern" data-strum="${i}">
+          <button class="play-btn strum-play" data-strum="${i}" title="播放">▶</button>
+          <div class="sp-info">
+            <div class="sp-name">${esc(p.name)}</div>
+            <div class="sp-desc">${esc(p.desc)}</div>
+          </div>
+          <div class="strum-grid">${grid}</div>
+        </div>`;
+      }).join('');
+      strumCard = `<div class="info-card strum-card"><div class="ic-title"><span class="ic-icon">🎸</span>扫弦节奏</div>
+        <div class="strum-legend">
+          <span class="lg-item"><span class="lg-sym">${strumArrowSVG('d')}</span> 下扫（6弦→1弦）</span>
+          <span class="lg-item"><span class="lg-sym lg-up">${strumArrowSVG('u')}</span> 上扫（1弦→6弦）</span>
+          <span class="lg-item">每大格 = 1 拍（内含 4 小格 = 十六分）</span>
+          <span class="lg-item">空格 = 不扫（声音延续）</span>
+        </div>
+        <div class="strum-list">${list}</div></div>`;
+    }
+
     // ===== 布局：详细解析 + 分解和弦 =====
     const showDetail = !!detailCard;
     const showArp = !!arpeggioCard;
@@ -593,10 +635,13 @@
       html += `<div class="detail-layout single"><div class="dl-center">${arpeggioCard}</div></div>`;
     }
 
+    // 扫弦节奏卡片：全宽置于下方
+    if (strumCard) html += strumCard;
+
     els.contentArea.innerHTML = html;
 
     // 绑定分解和弦播放
-    els.contentArea.querySelectorAll('.play-btn').forEach(btn => {
+    els.contentArea.querySelectorAll('.play-btn[data-arp]').forEach(btn => {
       btn.addEventListener('click', () => {
         // 播放时暂停自动转换，避免"画面切走、声音还在放旧和弦"
         if (trainingState === 'running') pauseTraining();
@@ -606,6 +651,29 @@
         GuitarAudio.playArpeggio(chord, a.pattern, 80);
         btn.classList.add('playing');
         setTimeout(() => btn.classList.remove('playing'), 1500);
+      });
+    });
+
+    // 绑定扫弦节奏播放（含逐格高亮动画，直观展现扫弦过程）
+    els.contentArea.querySelectorAll('.strum-play').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (trainingState === 'running') pauseTraining();
+        const i = parseInt(btn.dataset.strum, 10);
+        const p = STRUM_PATTERNS[i];
+        if (!p) return;
+        GuitarAudio.playStrum(chord, p.slots, 80);
+        btn.classList.add('playing');
+        // 逐格高亮：与播放节拍同步
+        const cells = els.contentArea.querySelectorAll(`.strum-pattern[data-strum="${i}"] .strum-cell`);
+        const sixteenthMs = 60000 / 80 / 4;
+        [...p.slots].forEach((d, k) => {
+          if (d === '-') return;
+          setTimeout(() => {
+            cells[k].classList.add('active');
+            setTimeout(() => cells[k].classList.remove('active'), Math.max(160, sixteenthMs * 0.85));
+          }, 60 + k * sixteenthMs);
+        });
+        setTimeout(() => btn.classList.remove('playing'), p.slots.length * sixteenthMs + 500);
       });
     });
   }
@@ -688,6 +756,10 @@
       }
       renderNavbar();
       renderContent();
+      // 转换后按任务开关播响所有弦（真实采样）
+      if (task.playChord !== false) {
+        GuitarAudio.playChord(chords[currentChordIdx % chords.length]);
+      }
     }, interval);
   }
 
@@ -783,13 +855,16 @@
       r.checked = r.value === dmVal;
     });
     // 显示内容（详细模式 checkbox）
-    const dc = task ? (task.displayContent || ['basic','detail','arpeggio']) : ['basic','detail','arpeggio'];
+    const dc = task ? (task.displayContent || ['basic','detail','arpeggio','strum']) : ['basic','detail','arpeggio','strum'];
     els.displayContentField.querySelectorAll('input').forEach(cb => {
       cb.checked = dc.includes(cb.value);
     });
     // 吉他音色
     const ptVal = task ? (task.playTone || 'nylon') : 'nylon';
     document.querySelectorAll('input[name="f-playTone"]').forEach(r => { r.checked = r.value === ptVal; });
+    // 和弦播放（转换后播响所有弦，默认开）
+    const pcVal = task ? task.playChord !== false : true;
+    document.querySelectorAll('input[name="f-playChord"]').forEach(r => { r.checked = (r.value === 'true') === pcVal; });
 
 
 
@@ -985,6 +1060,7 @@
     const displayMode = document.querySelector('input[name="f-displayMode"]:checked').value;
     const displayContent = [...els.displayContentField.querySelectorAll('input:checked')].map(cb => cb.value);
     const playTone = document.querySelector('input[name="f-playTone"]:checked').value;
+    const playChord = document.querySelector('input[name="f-playChord"]:checked').value === 'true';
 
 
 
@@ -999,7 +1075,8 @@
       previewContent,
       displayMode,
       displayContent,
-      playTone
+      playTone,
+      playChord
     };
 
 

@@ -130,6 +130,23 @@ const GuitarAudio = (() => {
     });
   }
 
+  /* 播放扫弦节奏：下扫 6弦→1弦、上扫 1弦→6弦，真实采样 */
+  function playStrum(chord, slots, bpm) {
+    const c = ensureCtx();
+    const now = c.currentTime + 0.05;
+    const sixteenth = 60 / (bpm || 80) / 4; // 每个十六分音符时长
+    [...slots].forEach((dir, i) => {
+      if (dir !== 'd' && dir !== 'u') return;
+      const t = now + i * sixteenth;
+      const order = dir === 'd' ? [6,5,4,3,2,1] : [1,2,3,4,5,6];
+      order.forEach((s, k) => {
+        const f = chord.fingering.find(x => x.string === s);
+        if (!f || f.fret === -1) return;
+        playSample(f.string, f.fret, t + k * 0.015);
+      });
+    });
+  }
+
   /* ---------- 音色与采样加载 ---------- */
   function isSamplerReady() { return sampler.ready; }
   function isSamplerLoading() { return sampler.loading; }
@@ -175,5 +192,5 @@ const GuitarAudio = (() => {
     });
   }
 
-  return { playArpeggio, playChord, isSamplerReady, isSamplerLoading, currentTone, loadSampler };
+  return { playArpeggio, playChord, playStrum, isSamplerReady, isSamplerLoading, currentTone, loadSampler };
 })();

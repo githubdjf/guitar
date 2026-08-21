@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>吉他练习</title>
+<link rel="stylesheet" href="shared/css/common.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+<div class="home">
+  <header class="home-nav">
+    <div class="nav-title"><span class="icon">🎸</span>吉他练习</div>
+    <div class="nav-sub">选择一项功能开始练习 · 全部本地运行，无需联网</div>
+  </header>
+
+  <main class="feature-grid">
+    <!--
+      新增功能：复制下方卡片块并修改 href / icon / title / desc / tag。
+      卡片为 <a> 时点击跳转；未上线的功能用 <div class="feature-card disabled"> 占位。
+    -->
+    <a class="feature-card" href="chord-switch/">
+      <div class="f-icon">🎸</div>
+      <div class="f-title">吉他和弦转换练习</div>
+      <div class="f-desc">9 大调 × 13 和弦共 117 个。可配置转换速度、顺序/随机模式、三种真实采样吉他音色，支持任务导入导出。</div>
+      <div class="f-foot">
+        <span class="f-tag live">使用中</span>
+        <span class="f-go">进入 →</span>
+      </div>
+    </a>
+
+    <div class="feature-card disabled">
+      <div class="f-icon">🎵</div>
+      <div class="f-title">节拍器</div>
+      <div class="f-desc">可调速度 / 拍号 / 重音的节拍器，辅助节奏练习。</div>
+      <div class="f-foot">
+        <span class="f-tag">即将上线</span>
+        <span class="f-go">敬请期待</span>
+      </div>
+    </div>
+
+    <div class="feature-card disabled">
+      <div class="f-icon">📖</div>
+      <div class="f-title">和弦字典</div>
+      <div class="f-desc">按调式查询和弦构成音、指法、分解和弦与扫弦节奏。</div>
+      <div class="f-foot">
+        <span class="f-tag">即将上线</span>
+        <span class="f-go">敬请期待</span>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

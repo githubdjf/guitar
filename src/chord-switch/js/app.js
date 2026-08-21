@@ -107,7 +107,7 @@
   const OPEN_PC = { 6: 4, 5: 9, 4: 2, 3: 7, 2: 11, 1: 4 }; // 空弦音半音序号（E A D G B E）
   const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
   const CHROMATIC_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-  const FLAT_KEYS = ['F','Bb','Eb'];
+  const FLAT_KEYS = ['F','Bb','Eb','Ab'];
 
   /* 按调拼写音名：降号调用降号、升号调用升号，自然音永远用本名 */
   function noteAt(key, string, fret) {
@@ -371,7 +371,7 @@
       svg += `<text x="${stringX(5) - 2}" y="${arrowY - 8}" text-anchor="end" class="cd-stringtag">1弦</text>`;
       svg += `<text x="${stringX(0) + 2}" y="${arrowY - 8}" text-anchor="start" class="cd-stringtag">6弦</text>`;
 
-      svg += `<text x="${W/2}" y="${H - 8}" text-anchor="middle" class="cd-name">${svgNameTspans(chord.name)}</text>`;
+      svg += `<text x="${W/2}" y="${fretY(maxFret) + 14}" text-anchor="middle" class="cd-name">${svgNameTspans(chord.name)}</text>`;
     }
 
     svg += '</svg>';
@@ -422,16 +422,34 @@
       const stringGap = 28;
       const fretGap = 24;
       const marginTop = 30;
-      const marginBottom = 28;
-      const marginLeft = 12;
+      const marginBottom = 16;
+      const marginLeft = 20;
+      const stripW = 44; // 左侧竖条名牌宽度
       const stringWidth = [6, 5, 4, 3.2, 2.4, 1.8]; // 6弦→1弦 粗细
-      const stringX = i => marginLeft + i * stringGap;
+      const stringX = i => stripW + marginLeft + i * stringGap;
       const fretY = n => marginTop + n * fretGap;
       const fretNumX = stringX(5) + 14;
       const W = fretNumX + 14;
       const H = marginTop + fretGap * (maxFret + 1) + marginBottom;
 
       let svg = `<svg class="rf-board" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      // 左侧竖条名牌：和弦名 / 所属调 / 级数（水平居中、自上而下，名无底色，分隔线区分）
+      const stripCX = stripW / 2;
+      const nameLen = chord.name.length;
+      const nameFont = nameLen >= 6 ? 11 : nameLen >= 5 ? 12 : 13.5;
+      svg += `<g>
+        <rect x="0" y="0" width="${stripW}" height="${H}" class="rf-strip"/>
+        <line x1="${stripW}" y1="0" x2="${stripW}" y2="${H}" class="rf-strip-line"/>
+        <text x="${stripCX}" y="30" text-anchor="middle" class="rf-strip-name" style="font-size:${nameFont}px">${esc(chord.name)}</text>
+        <line x1="${stripCX - 12}" y1="46" x2="${stripCX + 12}" y2="46" class="rf-strip-div"/>
+        <text x="${stripCX}" y="66" text-anchor="middle" class="rf-strip-key">${esc(key.name)}</text>
+        <text x="${stripCX}" y="96" text-anchor="middle" class="rf-strip-deg">${esc(chord.degree)}级</text>
+      </g>`;
+
+
+
+
+
 
       // 按品范围矩形框：圈住和弦弹奏区间
       const fretted = chord.fingering.filter(f => f.fret > 0);
@@ -502,7 +520,7 @@
       // 底部弦号
       for (let i = 0; i < 6; i++) {
         const str = 6 - i;
-        svg += `<text x="${stringX(i)}" y="${H - 8}" text-anchor="middle" class="rf-strlabel${str === rootStr ? ' root' : ''}">${str}弦</text>`;
+        svg += `<text x="${stringX(i)}" y="${fretY(maxFret) + 20}" text-anchor="middle" class="rf-strlabel${str === rootStr ? ' root' : ''}">${str}弦</text>`;
       }
 
       svg += '</svg>';

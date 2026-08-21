@@ -1,7 +1,7 @@
 @echo off
-rem 吉他和弦转换练习 - 一键启动本地服务器
+rem 吉他练习 - 一键启动本地服务器
 rem 用法：双击运行，或用命令行 start.bat 8000
-cd /d "%~dp0src\practice"
+cd /d "%~dp0src"
 set PORT=8000
 if not "%1"=="" set PORT=%1
 echo ==============================================

@@ -1,13 +1,8 @@
-:root{
-  --wood:#8B5A2B;--wood-dark:#6B4226;--wood-light:#A0522D;--amber:#D4A017;--amber-light:#E8C96A;
-  --bg:#F5EFE6;--bg-warm:#EFE6D8;--card:#FFF8F0;--text:#3E2F1C;--text-secondary:#8A7A63;
-  --green:#4C8C4A;--red:#C0392B;--shadow:0 4px 20px rgba(139,90,43,.10);--shadow-lg:0 8px 32px rgba(139,90,43,.16);
-  --radius:16px;--radius-lg:22px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--text);background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
-button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-input,select{font-family:inherit}
+/* ============================================================
+ * 吉他和弦转换练习 - 功能专用样式
+ * （主题变量 / 重置 / 通用组件见 ../shared/css/common.css）
+ * ============================================================ */
+
 .app{max-width:1200px;margin:0 auto;min-height:100vh;display:flex;gap:20px;padding:20px}
 @media(max-width:900px){.app{padding:12px;gap:12px}}
 .main-panel{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
@@ -229,20 +224,6 @@ input,select{font-family:inherit}
 .btn-restart{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);color:#fff;padding:10px 14px;font-size:13px;font-weight:700;border-radius:999px;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .3s ease;flex-shrink:0}
 .btn-restart:hover:not(:disabled){background:rgba(255,255,255,.28)}
 .btn-restart:disabled{opacity:.4;cursor:not-allowed}
-.drawer-backdrop{position:fixed;inset:0;background:rgba(62,47,28,.35);z-index:99;opacity:0;pointer-events:none;transition:opacity .3s ease}
-.drawer-backdrop.show{opacity:1;pointer-events:auto}
-.side-panel{position:fixed;top:0;right:0;bottom:0;width:340px;background:var(--bg);box-shadow:-8px 0 32px rgba(0,0,0,.2);padding:16px;transform:translateX(100%);transition:transform .3s ease;z-index:100;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
-
-.side-panel.open{transform:translateX(0)}
-@media(max-width:600px){.side-panel{width:85%;max-width:340px}}
-
-.side-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.side-header h2{font-size:18px;font-weight:800;color:var(--wood-dark);display:flex;align-items:center;gap:8px}
-.btn-new{background:var(--wood);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:4px;transition:all .2s ease}
-.btn-new:hover{background:var(--wood-dark)}
-.btn-close-drawer{display:flex;background:var(--bg-warm);border:1px solid rgba(139,90,43,.15);color:var(--text);width:36px;height:36px;border-radius:10px;font-size:18px;align-items:center;justify-content:center}
-.btn-close-drawer:hover{background:var(--wood);color:#fff}
-
 .task-list{display:flex;flex-direction:column;gap:10px}
 .task-item{background:var(--card);border:2px solid rgba(139,90,43,.12);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s ease}
 .task-item:hover{border-color:var(--wood-light)}
@@ -261,29 +242,6 @@ input,select{font-family:inherit}
 .io-actions{display:flex;gap:8px}
 .io-actions button{flex:1;background:var(--bg-warm);border:1px solid rgba(139,90,43,.2);border-radius:10px;padding:10px;font-size:13px;font-weight:700;color:var(--wood-dark);transition:all .2s ease}
 .io-actions button:hover{background:var(--wood);color:#fff}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(62,47,28,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
-.modal-overlay.open{display:flex}
-.modal{background:var(--card);border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:fadeInUp .3s ease}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.modal-header{position:sticky;top:0;background:var(--card);padding:18px 20px;border-bottom:1px solid rgba(139,90,43,.12);display:flex;align-items:center;justify-content:space-between;z-index:2}
-.modal-header h3{font-size:18px;font-weight:800;color:var(--wood-dark)}
-.modal-close{background:var(--bg-warm);border:none;border-radius:8px;width:32px;height:32px;font-size:16px;color:var(--text-secondary)}
-.modal-body{padding:20px}
-.modal-footer{position:sticky;bottom:0;background:var(--card);padding:16px 20px;border-top:1px solid rgba(139,90,43,.12);display:flex;gap:12px}
-.modal-footer button{flex:1;padding:12px;border-radius:12px;font-size:15px;font-weight:700;border:none}
-.btn-save{background:var(--wood);color:#fff}
-.btn-save:hover{background:var(--wood-dark)}
-.btn-cancel{background:var(--bg-warm);color:var(--text);border:1px solid rgba(139,90,43,.15)!important}
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
-.form-label .req{color:var(--red)}
-.form-hint{font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.5}
-.input-field{width:100%;padding:12px 14px;font-size:15px;font-weight:500;color:var(--text);background:var(--bg);border:2px solid #E8E0D2;border-radius:12px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
-.input-field:focus{border-color:var(--wood-light);box-shadow:0 0 0 3px rgba(139,90,43,.1)}
-.radio-group{display:flex;gap:16px}
-.radio-group.vertical{flex-direction:column;gap:10px}
-.radio-option{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px}
-.radio-option input{accent-color:var(--wood);width:16px;height:16px}
 .chord-selector{border:1px solid rgba(139,90,43,.15);border-radius:12px;overflow:hidden}
 .cs-group{border-bottom:1px solid rgba(139,90,43,.1)}
 .cs-group:last-child{border-bottom:none}
@@ -317,16 +275,12 @@ input,select{font-family:inherit}
 .order-item .o-arrows button{background:var(--card);border:1px solid rgba(139,90,43,.2);border-radius:6px;width:28px;height:28px;font-size:13px;color:var(--wood-dark)}
 .order-item .o-arrows button:disabled{opacity:.3;cursor:not-allowed}
 .order-empty{font-size:13px;color:var(--text-secondary);padding:8px}
-.checkbox-group{display:flex;flex-wrap:wrap;gap:8px}
-.checkbox-group.vertical{flex-direction:column;align-items:stretch}
-.checkbox-group.vertical .checkbox-item{width:100%}
-.checkbox-item{display:flex;align-items:center;gap:6px;background:var(--bg-warm);border:1px solid rgba(139,90,43,.15);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;user-select:none}
-
-.checkbox-item input{accent-color:var(--wood);width:15px;height:15px}
-.checkbox-item.checked{background:var(--wood);color:#fff;border-color:var(--wood)}
-.checkbox-item.checked input{accent-color:#fff}
-.hidden-field{display:none}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--wood-dark);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);z-index:300;opacity:0;transition:opacity .3s ease;pointer-events:none;max-width:90%;text-align:center}
-.toast.show{opacity:1}
-.toast.error{background:var(--red)}
 @media(max-width:600px){.panel{padding:14px}.chord-hero .chord-name{font-size:32px}.navbar{padding:14px 16px}.btn-start{padding:8px 12px;font-size:13px}.btn-restart{padding:8px 10px;font-size:12px}}
+
+/* 左侧竖条名牌（和弦名 / 所属调 / 级数，浅沙色渐变） */
+.rf-strip{fill:var(--bg-warm)}
+.rf-strip-line{stroke:rgba(139,90,43,.18);stroke-width:1.2}
+.rf-strip-key{font-size:11px;font-weight:700;fill:var(--wood-dark)}
+.rf-strip-deg{font-size:11px;font-weight:800;fill:var(--amber)}
+.rf-strip-name{font-weight:900;fill:var(--wood-dark)}
+.rf-strip-div{stroke:rgba(139,90,43,.28);stroke-width:1.2}

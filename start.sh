@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# 吉他和弦转换练习 - 一键启动本地服务器
+# 吉他练习 - 一键启动本地服务器
 # 用法：./start.sh [端口]   （默认 8000，启动后自动打开浏览器）
-cd "$(dirname "$0")/src/practice"
+cd "$(dirname "$0")/src"
 PORT="${1:-8000}"
 echo "=============================================="
 echo "  吉他练习已启动：http://localhost:${PORT}"

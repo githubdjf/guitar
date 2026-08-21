@@ -1,0 +1,21 @@
+/* ============================================================
+ * 首页（功能入口）- 专属样式
+ * ============================================================ */
+.home{max-width:1200px;margin:0 auto;min-height:100vh;padding:20px;display:flex;flex-direction:column;gap:20px}
+.home-nav{background:linear-gradient(135deg,var(--wood) 0%,var(--wood-dark) 100%);border-radius:var(--radius-lg);padding:32px 28px;color:#fff;box-shadow:var(--shadow-lg)}
+.home-nav .nav-title{font-size:26px;font-weight:900;display:flex;align-items:center;gap:10px}
+.home-nav .nav-title .icon{font-size:30px}
+.home-nav .nav-sub{font-size:13px;color:rgba(255,255,255,.75);margin-top:6px;line-height:1.6}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.feature-card{background:var(--card);border:1px solid rgba(139,90,43,.12);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:12px;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.feature-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--wood-light)}
+.feature-card .f-icon{font-size:42px;line-height:1}
+.feature-card .f-title{font-size:18px;font-weight:800;color:var(--wood-dark)}
+.feature-card .f-desc{font-size:13px;color:var(--text-secondary);line-height:1.6;flex:1}
+.feature-card .f-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.feature-card .f-tag{font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--bg-warm);color:var(--wood)}
+.feature-card .f-tag.live{background:var(--green);color:#fff}
+.feature-card .f-go{font-size:14px;font-weight:800;color:var(--amber)}
+.feature-card.disabled{opacity:.55;cursor:not-allowed;pointer-events:none;filter:grayscale(.5)}
+.feature-card.disabled .f-go{color:var(--text-secondary)}
+@media(max-width:600px){.home{padding:12px}.home-nav{padding:24px 18px}.home-nav .nav-title{font-size:22px}.feature-grid{grid-template-columns:1fr}}

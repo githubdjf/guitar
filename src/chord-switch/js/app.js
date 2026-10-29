@@ -16,6 +16,62 @@
 
 
   const STORAGE_KEY = 'guitar_practice_tasks';
+  const PRESET_SEEDED_KEY = 'guitar_presets_seeded_v2';
+
+  /* ---------- 预制任务（民谣主流三和弦） ---------- */
+  function presetTask(id, name, chords, opts) {
+    return Object.assign({
+      id,
+      name,
+      key: chords[0].key,
+      chords,
+      mode: 'sequential',
+      speed: 60,
+      preview: true,
+      previewContent: ['name'],
+      displayMode: 'detail',
+      displayContent: ['basic', 'detail', 'arpeggio', 'strum'],
+      playTone: 'nylon',
+      playChord: true
+    }, opts || {});
+  }
+  function ch(key, name) { return { key, name }; }
+
+  const PRESET_TASKS = [
+    /* ===== C 调 10 套 ===== */
+    presetTask('preset-c-1', 'C调·万能四和弦 I-vi-IV-V（1-6-4-5）',
+      [ch('C','C'), ch('C','Am'), ch('C','F'), ch('C','G')], { speed: 60 }),
+    presetTask('preset-c-2', 'C调·正格进行 I-IV-V（1-4-5）',
+      [ch('C','C'), ch('C','F'), ch('C','G')], { speed: 80 }),
+    presetTask('preset-c-3', 'C调·卡农进行 I-V-vi-iii-IV-I-IV-V（1-5-6-3-4-1-4-5）',
+      [ch('C','C'), ch('C','G'), ch('C','Am'), ch('C','Em'), ch('C','F'), ch('C','C'), ch('C','F'), ch('C','G')], { speed: 50 }),
+    presetTask('preset-c-4', 'C调·流行四和弦 vi-IV-I-V（6-4-1-5）',
+      [ch('C','Am'), ch('C','F'), ch('C','C'), ch('C','G')], { speed: 60 }),
+    presetTask('preset-c-5', 'C调·伤感下行 I-iii-vi-IV（1-3-6-4）',
+      [ch('C','C'), ch('C','Em'), ch('C','Am'), ch('C','F')], { speed: 60 }),
+    presetTask('preset-c-6', 'C调·民谣温暖 I-IV-vi-V（1-4-6-5）',
+      [ch('C','C'), ch('C','F'), ch('C','Am'), ch('C','G')], { speed: 60 }),
+    presetTask('preset-c-7', 'C调·老派进行 I-vi-ii-V（1-6-2-5）',
+      [ch('C','C'), ch('C','Am'), ch('C','Dm'), ch('C','G')], { speed: 60 }),
+    presetTask('preset-c-8', 'C调·民谣摇滚 I-V-IV（1-5-4）',
+      [ch('C','C'), ch('C','G'), ch('C','F')], { speed: 80 }),
+    presetTask('preset-c-9', 'C调·循环推进 I-IV-V-vi（1-4-5-6）',
+      [ch('C','C'), ch('C','F'), ch('C','G'), ch('C','Am')], { speed: 70 }),
+    presetTask('preset-c-10', 'C调·全六和弦综合 I-ii-iii-IV-V-vi（1-2-3-4-5-6）',
+      [ch('C','C'), ch('C','Dm'), ch('C','Em'), ch('C','F'), ch('C','G'), ch('C','Am')], { speed: 60, mode: 'random' }),
+
+    /* ===== G 调 5 套 ===== */
+    presetTask('preset-g-1', 'G调·万能四和弦 I-vi-IV-V（1-6-4-5）',
+      [ch('G','G'), ch('G','Em'), ch('G','C'), ch('G','D')], { speed: 60 }),
+    presetTask('preset-g-2', 'G调·正格进行 I-IV-V（1-4-5）',
+      [ch('G','G'), ch('G','C'), ch('G','D')], { speed: 80 }),
+    presetTask('preset-g-3', 'G调·卡农进行 I-V-vi-iii-IV-I-IV-V（1-5-6-3-4-1-4-5）',
+      [ch('G','G'), ch('G','D'), ch('G','Em'), ch('G','Bm'), ch('G','C'), ch('G','G'), ch('G','C'), ch('G','D')], { speed: 50 }),
+    presetTask('preset-g-4', 'G调·流行四和弦 vi-IV-I-V（6-4-1-5）',
+      [ch('G','Em'), ch('G','C'), ch('G','G'), ch('G','D')], { speed: 60 }),
+    presetTask('preset-g-5', 'G调·温暖民谣 I-IV-vi-V（1-4-6-5）',
+      [ch('G','G'), ch('G','C'), ch('G','Em'), ch('G','D')], { speed: 60 })
+  ];
 
   /* ---------- DOM 引用 ---------- */
   const $ = id => document.getElementById(id);
@@ -41,6 +97,7 @@
     exportBtn: $('exportBtn'),
     importBtn: $('importBtn'),
     importFile: $('importFile'),
+    restorePresetsBtn: $('restorePresetsBtn'),
     taskModal: $('taskModal'),
     modalTitle: $('modalTitle'),
     modalClose: $('modalClose'),
@@ -191,31 +248,84 @@
     } catch (e) { tasks = []; }
   }
 
+  /* 补齐缺失的预制任务（按 id 去重，不会覆盖用户自己改过的同 id 任务以外的内容） */
+  function mergePresets() {
+    const existing = new Set(tasks.map(t => t.id));
+    let added = 0;
+    PRESET_TASKS.forEach(p => {
+      if (!existing.has(p.id)) {
+        tasks.push(JSON.parse(JSON.stringify(p)));
+        added++;
+      }
+    });
+    if (added) saveTasks();
+    return added;
+  }
+
+  /* 是否为预制任务 */
+  function isPreset(task) {
+    return !!(task && typeof task.id === 'string' && task.id.indexOf('preset-') === 0);
+  }
+
+  /* 启动时幂等校验：
+   * - 一条预制任务都没有（被导入覆盖 / localStorage 清空 / 全删光）→ 自动补回全部
+   * - 只删了其中几条 → 不自动加回（尊重用户删除，可用侧栏按钮手动恢复） */
+  function ensurePresets() {
+    if (!tasks.some(isPreset)) mergePresets();
+    try { localStorage.setItem(PRESET_SEEDED_KEY, '1'); } catch (e) { /* ignore */ }
+    if (!currentTaskId && tasks.length) currentTaskId = PRESET_TASKS[0].id;
+  }
+
+  /* 手动恢复预制任务（侧栏按钮） */
+  function restorePresets() {
+    const added = mergePresets();
+    renderTaskList();
+    if (!currentTaskId && tasks.length) {
+      currentTaskId = tasks[0].id;
+      applyAudioMode(tasks[0]);
+    }
+    renderNavbar();
+    renderContent();
+    toast(added ? `已恢复 ${added} 个预制任务` : '预制任务已齐全');
+  }
+
   /* ---------- 渲染：任务列表 ---------- */
+  function taskItemHTML(t) {
+    const active = t.id === currentTaskId ? ' active' : '';
+    const chips = t.chords.slice(0, 6).map(c => `<span class="chip">${noteHTML(c.name)}</span>`).join('');
+    const more = t.chords.length > 6 ? `<span class="chip">+${t.chords.length - 6}</span>` : '';
+    return `<div class="task-item${active}" data-id="${t.id}">
+      <div class="t-head">
+        <div class="t-name">${esc(t.name)}</div>
+        <div class="t-actions">
+          <button class="edit" data-action="edit" title="编辑">✏️</button>
+          <button class="del" data-action="del" title="删除">🗑</button>
+        </div>
+      </div>
+      <div class="t-meta">
+        ${t.mode === 'random' ? '随机转换' : '顺序转换'} · ${t.speed}次/分
+        <div class="chips">${chips}${more}</div>
+      </div>
+    </div>`;
+  }
+
   function renderTaskList() {
     if (!tasks.length) {
       els.taskList.innerHTML = '<div class="task-empty"><div class="icon">🎸</div>暂无任务<br>点击「新建任务」开始</div>';
       return;
     }
-    els.taskList.innerHTML = tasks.map(t => {
-      const active = t.id === currentTaskId ? ' active' : '';
-      const chips = t.chords.slice(0, 6).map(c => `<span class="chip">${noteHTML(c.name)}</span>`).join('');
-      const more = t.chords.length > 6 ? `<span class="chip">+${t.chords.length - 6}</span>` : '';
-      return `<div class="task-item${active}" data-id="${t.id}">
-        <div class="t-head">
-          <div class="t-name">${esc(t.name)}</div>
-          <div class="t-actions">
-            <button class="edit" data-action="edit" title="编辑">✏️</button>
-            <button class="del" data-action="del" title="删除">🗑</button>
-          </div>
-        </div>
-        <div class="t-meta">
-          ${t.mode === 'random' ? '随机转换' : '顺序转换'} · ${t.speed}次/分
-          <div class="chips">${chips}${more}</div>
-        </div>
-
-      </div>`;
-    }).join('');
+    // 分组：C 调预制 / G 调预制 / 其它调预制 / 我的任务
+    const presetRest = tasks.filter(t => isPreset(t) && t.key !== 'C' && t.key !== 'G');
+    const groups = [
+      { title: '🎸 C 调·民谣预制', list: tasks.filter(t => isPreset(t) && t.key === 'C') },
+      { title: '🎸 G 调·民谣预制', list: tasks.filter(t => isPreset(t) && t.key === 'G') },
+      { title: '🎸 其它调·预制', list: presetRest },
+      { title: '✍️ 我的任务', list: tasks.filter(t => !isPreset(t)) }
+    ];
+    els.taskList.innerHTML = groups.filter(g => g.list.length).map(g =>
+      `<div class="task-group-head">${g.title}<span class="tg-count">${g.list.length}</span></div>` +
+      g.list.map(taskItemHTML).join('')
+    ).join('');
   }
 
   /* ---------- 渲染：导航栏任务名 + 模式tag + 预览 ---------- */
@@ -243,9 +353,10 @@
     els.previewSection.style.display = 'block';
     const chords = getTaskChords(task);
 
-    // 预览顺序：顺序模式按编排顺序，随机模式按乱序集合
-    const order = task.mode === 'random' ? shuffledOrder.map(idx => chords[idx]) : chords;
-    const activeIdx = task.mode === 'random' ? shuffledIdx : currentChordIdx;
+    // 预览顺序：顺序模式按编排顺序，随机模式按乱序集合（集合未就绪或与和弦数不匹配时回退编排顺序）
+    const randomReady = task.mode === 'random' && shuffledOrder.length === chords.length;
+    const order = randomReady ? shuffledOrder.map(idx => chords[idx]) : chords;
+    const activeIdx = randomReady ? shuffledIdx : currentChordIdx;
     const items = order.map((c, i) => {
       const active = i === activeIdx ? ' active' : '';
       const name = showName ? `<div class="p-name">${noteHTML(c.name)}</div>` : '';
@@ -733,6 +844,23 @@
     return a;
   }
 
+  /* 生成本轮随机序列：尽量让首元素不等于上一轮最后一个和弦，避免相邻轮出现相同和弦 */
+  function buildRandomOrder(length, prevLastIdx) {
+    if (length <= 0) return [];
+    if (length === 1) return [0];
+    let order = shuffle(Array.from({ length }, (_, i) => i));
+    // 重试若干次，避免首元素与上一轮末尾相同
+    for (let guard = 0; order[0] === prevLastIdx && guard < 20; guard++) {
+      order = shuffle(Array.from({ length }, (_, i) => i));
+    }
+    // 兜底：仍相同则强制把首元素与任一不同元素交换
+    if (order[0] === prevLastIdx) {
+      const p = order.findIndex(v => v !== prevLastIdx);
+      if (p > 0) [order[0], order[p]] = [order[p], order[0]];
+    }
+    return order;
+  }
+
   /* ---------- 训练控制 ---------- */
   /* 是否存在可选任务 */
   function hasValidTask() {
@@ -761,10 +889,10 @@
     const interval = 60000 / task.speed;
     timer = setInterval(() => {
       if (task.mode === 'random') {
-        // 随机模式：按乱序集合顺序转换；本轮完成后重新生成
+        // 随机模式：按乱序集合顺序转换；本轮完成后重新洗牌（避开上一轮末尾和弦）
         shuffledIdx++;
-        if (shuffledIdx >= shuffledOrder.length) {
-          shuffledOrder = shuffle(chords.map((_, i) => i));
+        if (!shuffledOrder.length || shuffledOrder.length !== chords.length || shuffledIdx >= shuffledOrder.length) {
+          shuffledOrder = buildRandomOrder(chords.length, currentChordIdx);
           shuffledIdx = 0;
         }
         currentChordIdx = shuffledOrder[shuffledIdx];
@@ -790,11 +918,13 @@
 
     clearInterval(timer);
     timer = null;
-    currentChordIdx = 0;
-    // 随机模式：生成乱序集合
+    // 随机模式：每轮开始都生成全新乱序集合，并从洗牌后的第一个和弦开始
     if (task.mode === 'random') {
-      shuffledOrder = shuffle(chords.map((_, i) => i));
+      shuffledOrder = buildRandomOrder(chords.length, -1);
       shuffledIdx = 0;
+      currentChordIdx = shuffledOrder[0];
+    } else {
+      currentChordIdx = 0;
     }
     trainingState = 'running';
     updateControls();
@@ -825,11 +955,13 @@
     toast('已重新开始');
   }
 
-  /* 重置（清空计时器回到初始状态） */
+  /* 重置（清空计时器回到初始状态，并清空随机状态） */
   function resetTraining() {
     trainingState = 'idle';
     clearInterval(timer);
     timer = null;
+    shuffledOrder = [];
+    shuffledIdx = 0;
     updateControls();
   }
 
@@ -1292,9 +1424,9 @@
       const chords = getTaskChords(task);
       if (!chords.length) return;
       // 随机模式按乱序集合、顺序模式按编排顺序换算实际索引
-      if (task.mode === 'random') {
-        shuffledIdx = idx;
-        currentChordIdx = shuffledOrder[shuffledIdx % shuffledOrder.length];
+      if (task.mode === 'random' && shuffledOrder.length === chords.length) {
+        shuffledIdx = ((idx % shuffledOrder.length) + shuffledOrder.length) % shuffledOrder.length;
+        currentChordIdx = shuffledOrder[shuffledIdx];
       } else {
         currentChordIdx = idx % chords.length;
       }
@@ -1318,7 +1450,8 @@
     // 点击任务栏以外的区域关闭
     els.drawerBackdrop.addEventListener('click', closeDrawer);
 
-    // 导入导出
+    // 导入导出 + 恢复预制任务
+    if (els.restorePresetsBtn) els.restorePresetsBtn.addEventListener('click', restorePresets);
     els.exportBtn.addEventListener('click', exportTasks);
     els.importBtn.addEventListener('click', () => els.importFile.click());
     els.importFile.addEventListener('change', e => {
@@ -1330,6 +1463,7 @@
   /* ---------- 初始化 ---------- */
   function init() {
     loadTasks();
+    ensurePresets();
     bindEvents();
     renderTaskList();
     renderNavbar();

@@ -225,6 +225,9 @@
 .btn-restart:hover:not(:disabled){background:rgba(255,255,255,.28)}
 .btn-restart:disabled{opacity:.4;cursor:not-allowed}
 .task-list{display:flex;flex-direction:column;gap:10px}
+.task-group-head{display:flex;align-items:center;gap:8px;margin:6px 2px 2px;font-size:13px;font-weight:800;color:var(--wood);letter-spacing:.5px}
+.task-group-head:first-child{margin-top:0}
+.task-group-head .tg-count{margin-left:auto;background:rgba(139,90,43,.12);color:var(--wood);font-size:11px;font-weight:800;padding:1px 7px;border-radius:10px}
 .task-item{background:var(--card);border:2px solid rgba(139,90,43,.12);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s ease}
 .task-item:hover{border-color:var(--wood-light)}
 .task-item.active{border-color:var(--amber);background:#FFFDF6}

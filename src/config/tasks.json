@@ -1,0 +1,1304 @@
+[
+  {
+    "id": "preset-c-1345",
+    "name": "C调·I-iii-IV-V（1-3-4-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "主→中音→下属→属，和声由安静逐渐开阔，情绪明朗坚定；适合陈述性主歌与情绪层层推进的段落。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1436",
+    "name": "C调·I-IV-iii-vi（1-4-3-6）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 62,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "主→下属→中音→下中音，和声温柔下行，带淡淡忧郁与叙事感；民谣主歌、抒情段落的常用走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1451",
+    "name": "C调·I-IV-V-I（1-4-5-1）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "最经典的完全终止进行，主→下属→属→主形成稳定闭环，明亮且有结束感；常用于乐句收束、副歌结尾。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1564",
+    "name": "C调·I-V-vi-IV（1-5-6-4）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "流行音乐黄金四和弦，先强烈后柔软回甘，朗朗上口；几乎能适配一切流行/民谣歌曲，万能走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-15634145",
+    "name": "C调·卡农进行",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 50,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "经典卡农和声（I-V-vi-iii-IV-I-IV-V），和声层层递进而绵延不绝，优雅且富有歌唱性；最万能的流行循环。",
+    "common": false
+  },
+  {
+    "id": "preset-c-15634125",
+    "name": "C调·卡农变体（1-5-6-3-4-1-2-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 50,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "卡农进行的变体，末段改为 ii-V 收束，多一分爵士韵味与起伏感；适合需要转折的段落。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1625",
+    "name": "C调·I-vi-ii-V（1-6-2-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "经典回转进行，小调色彩一闪后回归主功能，复古圆润；老歌、爵士与流行抒情常用。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1645",
+    "name": "C调·I-vi-IV-V（1-6-4-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "万能四和弦，忧伤中带希望，情感层次丰富；民谣、流行通吃的高频走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-4536251",
+    "name": "C调·IV-V-iii-vi-ii-V-I（4-5-3-6-2-5-1）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 50,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "流行情歌经典长走向，从下属逐级下行再 ii-V-I 收束，层次丰富、煽情动人；副歌神器。",
+    "common": false
+  },
+  {
+    "id": "preset-c-5634125",
+    "name": "C调·V-vi-iii-IV-I-ii-V（5-6-3-4-1-2-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 52,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "以属和弦起句，张力十足，中间起伏后 ii-V 收束，色彩多变；适合情绪铺垫与高潮前段。",
+    "common": false
+  },
+  {
+    "id": "preset-c-6251",
+    "name": "C调·vi-ii-V-I（6-2-5-1）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "小调色彩浓厚，忧郁开场逐步转向明亮收束，情感层次分明；适合抒情与民谣段落。",
+    "common": false
+  },
+  {
+    "id": "preset-c-6415",
+    "name": "C调·vi-IV-I-V（6-4-1-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "下中音起句的流行四和弦，温柔开场、明亮收束，清新自然；副歌与主歌均常用。",
+    "common": false
+  },
+  {
+    "id": "preset-c-6451",
+    "name": "C调·vi-IV-V-I（6-4-5-1）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "C"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "小调开篇、属主收束，由温柔推向坚定；流行与摇滚皆宜的稳定走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-145",
+    "name": "C调·I-IV-V（1-4-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 80,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "正格进行，基础而有力、明亮坚定；摇滚、进行曲与儿歌常用，根音稳固。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1364",
+    "name": "C调·I-iii-vi-IV（1-3-6-4）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 55,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "下行三度进行，情绪持续下沉，淡淡伤感与怀旧；抒情主歌的常见走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1465",
+    "name": "C调·I-IV-vi-V（1-4-6-5）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "温暖民谣进行，和声缠绵柔和、治愈感强；民谣弹唱最顺手的走向之一。",
+    "common": false
+  },
+  {
+    "id": "preset-c-154",
+    "name": "C调·I-V-IV（1-5-4）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 80,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "主→属→下属，摇滚感十足、简单直接有力量；经典民谣摇滚走向。",
+    "common": false
+  },
+  {
+    "id": "preset-c-1456",
+    "name": "C调·I-IV-V-vi（1-4-5-6）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 65,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "四和弦循环推进，明亮中夹小调色彩，节奏感强；适合快节奏弹唱。",
+    "common": false
+  },
+  {
+    "id": "preset-c-123456",
+    "name": "C调·I-ii-iii-IV-V-vi（1-2-3-4-5-6）",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 55,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "覆盖自然大调全部六个三和弦，和声循序递进；适合和弦转换与综合训练。",
+    "common": false
+  },
+  {
+    "id": "preset-g-1645",
+    "name": "G调·I-vi-IV-V（1-6-4-5）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "万能四和弦，忧伤中带希望，情感层次丰富；民谣、流行通吃的高频走向。",
+    "common": false
+  },
+  {
+    "id": "preset-g-145",
+    "name": "G调·I-IV-V（1-4-5）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 80,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "正格进行，基础而有力、明亮坚定；摇滚、进行曲与儿歌常用，根音稳固。",
+    "common": false
+  },
+  {
+    "id": "preset-g-15634145",
+    "name": "G调·卡农进行",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "Bm"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 50,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "经典卡农和声（I-V-vi-iii-IV-I-IV-V），和声层层递进而绵延不绝，优雅且富有歌唱性。",
+    "common": false
+  },
+  {
+    "id": "preset-g-6415",
+    "name": "G调·vi-IV-I-V（6-4-1-5）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "下中音起句的流行四和弦，温柔开场、明亮收束，清新自然；副歌与主歌均常用。",
+    "common": false
+  },
+  {
+    "id": "preset-g-4536251",
+    "name": "G调·IV-V-iii-vi-ii-V-I（4-5-3-6-2-5-1）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "Bm"
+      },
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "Am"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "G"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 50,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "流行情歌经典长走向，从下属逐级下行再 ii-V-I 收束，层次丰富、煽情动人。",
+    "common": false
+  },
+  {
+    "id": "preset-g-1465",
+    "name": "G调·I-IV-vi-V（1-4-6-5）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      },
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "温暖民谣进行，和声缠绵柔和、治愈感强；民谣弹唱最顺手的走向之一。",
+    "common": false
+  },
+  {
+    "id": "preset-g-1564",
+    "name": "G调·I-V-vi-IV（1-5-6-4）",
+    "key": "G",
+    "chords": [
+      {
+        "key": "G",
+        "name": "G"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "Em"
+      },
+      {
+        "key": "G",
+        "name": "C"
+      }
+    ],
+    "mode": "sequential",
+    "speed": 60,
+    "preview": true,
+    "previewContent": [
+      "name"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "流行音乐黄金四和弦，先强烈后柔软回甘，朗朗上口；万能走向。",
+    "common": false
+  },
+  {
+    "id": "mvv439urxnjrj",
+    "name": "常见和弦",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "G7"
+      },
+      {
+        "key": "G",
+        "name": "Bm"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "D7"
+      },
+      {
+        "key": "D",
+        "name": "A"
+      },
+      {
+        "key": "D",
+        "name": "A7"
+      },
+      {
+        "key": "A",
+        "name": "C#m"
+      },
+      {
+        "key": "A",
+        "name": "E"
+      },
+      {
+        "key": "A",
+        "name": "E7"
+      },
+      {
+        "key": "E",
+        "name": "F#m"
+      },
+      {
+        "key": "Bb",
+        "name": "Gm"
+      },
+      {
+        "key": "Eb",
+        "name": "Cm"
+      },
+      {
+        "key": "Ab",
+        "name": "Fm"
+      }
+    ],
+    "mode": "random",
+    "speed": 15,
+    "preview": true,
+    "previewContent": [
+      "name",
+      "fingering"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "",
+    "common": false
+  },
+  {
+    "id": "mvv655or52isa",
+    "name": "最常见和弦",
+    "key": "C",
+    "chords": [
+      {
+        "key": "C",
+        "name": "C"
+      },
+      {
+        "key": "C",
+        "name": "Dm"
+      },
+      {
+        "key": "C",
+        "name": "Em"
+      },
+      {
+        "key": "C",
+        "name": "F"
+      },
+      {
+        "key": "C",
+        "name": "G"
+      },
+      {
+        "key": "C",
+        "name": "Am"
+      },
+      {
+        "key": "C",
+        "name": "G7"
+      },
+      {
+        "key": "G",
+        "name": "Bm"
+      },
+      {
+        "key": "G",
+        "name": "D"
+      },
+      {
+        "key": "G",
+        "name": "D7"
+      },
+      {
+        "key": "D",
+        "name": "A"
+      },
+      {
+        "key": "D",
+        "name": "A7"
+      },
+      {
+        "key": "A",
+        "name": "E"
+      },
+      {
+        "key": "A",
+        "name": "E7"
+      }
+    ],
+    "mode": "random",
+    "speed": 15,
+    "preview": true,
+    "previewContent": [
+      "name",
+      "fingering"
+    ],
+    "displayMode": "detail",
+    "displayContent": [
+      "basic",
+      "detail",
+      "arpeggio",
+      "strum"
+    ],
+    "playTone": "nylon",
+    "playChord": true,
+    "desc": "",
+    "common": true
+  }
+]

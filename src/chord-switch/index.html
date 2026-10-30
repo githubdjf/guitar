@@ -61,11 +61,15 @@
         <button class="btn-close-drawer" id="closeDrawerBtn">✕</button>
       </div>
     </div>
+    <div class="list-tabs" id="listTabs"></div>
     <div class="task-list" id="taskList"></div>
+    <div class="config-status" id="configStatus"></div>
     <div class="io-actions">
       <button id="exportBtn">⬇ 导出</button>
       <button id="importBtn">⬆ 导入</button>
-      <button id="restorePresetsBtn" title="补回被删除的民谣预制任务">↺ 预制任务</button>
+      <button id="saveConfigBtn" title="写入 src/config/tasks.json">💾 保存配置</button>
+      <button id="loadConfigBtn" title="读取 src/config/tasks.json">📂 载入配置</button>
+      <button id="restorePresetsBtn" title="按内置预制生成完整配置并写入文件">♻️ 重置预制</button>
       <input type="file" id="importFile" accept=".json" style="display:none">
     </div>
   </div>
@@ -86,6 +90,21 @@
       <div class="form-group">
         <label class="form-label">任务名称 <span class="req">*</span></label>
         <input type="text" class="input-field" id="f-name" placeholder="例如：C大调常用和弦练习">
+      </div>
+
+      <!-- 和弦走向介绍 -->
+      <div class="form-group">
+        <label class="form-label">和弦走向介绍（可选）</label>
+        <textarea class="input-field textarea" id="f-desc" rows="3" placeholder="描述该走向的特色、使用场合、场景、风格与感情色彩等"></textarea>
+        <div class="form-hint">为空则不显示</div>
+      </div>
+
+      <!-- 加入常用 -->
+      <div class="form-group">
+        <label class="switch-row">
+          <input type="checkbox" id="f-common" checked>
+          <span>加入常用练习列表</span>
+        </label>
       </div>
 
       <!-- 选择和弦 -->
@@ -191,6 +210,7 @@
 
 <script src="../shared/js/data.js?v=20251029"></script>
 <script src="../shared/js/audio.js?v=20251029"></script>
+<script src="js/presets.js?v=20251029"></script>
 <script src="js/app.js?v=20251029"></script>
 </body>
 </html>

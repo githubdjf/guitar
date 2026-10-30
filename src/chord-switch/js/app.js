@@ -13,65 +13,20 @@
   let editingId = null;     // 正在编辑的任务 id
   let shuffledOrder = [];   // 随机模式的乱序集合（和弦索引数组）
   let shuffledIdx = 0;      // 当前在乱序集合中的位置
+  let listTab = 'common';   // 任务面板当前 Tab：common 常用任务 / all 任务仓库
+  let configWritable = false; // 是否可通过后端写配置文件
 
 
   const STORAGE_KEY = 'guitar_practice_tasks';
   const PRESET_SEEDED_KEY = 'guitar_presets_seeded_v2';
+  const CONFIG_URL = '../config/tasks.json';
+  const API_URL = '/api/tasks';
 
-  /* ---------- 预制任务（民谣主流三和弦） ---------- */
-  function presetTask(id, name, chords, opts) {
-    return Object.assign({
-      id,
-      name,
-      key: chords[0].key,
-      chords,
-      mode: 'sequential',
-      speed: 60,
-      preview: true,
-      previewContent: ['name'],
-      displayMode: 'detail',
-      displayContent: ['basic', 'detail', 'arpeggio', 'strum'],
-      playTone: 'nylon',
-      playChord: true
-    }, opts || {});
+  /* ---------- 预制任务（从 presets.js 单一数据源读取） ---------- */
+  const PRESET_TASKS = (typeof window !== 'undefined' && window.PRESET_TASKS) ? window.PRESET_TASKS : [];
+  function buildPresetTasks() {
+    return (typeof window !== 'undefined' && window.buildPresetTasks) ? window.buildPresetTasks() : [];
   }
-  function ch(key, name) { return { key, name }; }
-
-  const PRESET_TASKS = [
-    /* ===== C 调 10 套 ===== */
-    presetTask('preset-c-1', 'C调·万能四和弦 I-vi-IV-V（1-6-4-5）',
-      [ch('C','C'), ch('C','Am'), ch('C','F'), ch('C','G')], { speed: 60 }),
-    presetTask('preset-c-2', 'C调·正格进行 I-IV-V（1-4-5）',
-      [ch('C','C'), ch('C','F'), ch('C','G')], { speed: 80 }),
-    presetTask('preset-c-3', 'C调·卡农进行 I-V-vi-iii-IV-I-IV-V（1-5-6-3-4-1-4-5）',
-      [ch('C','C'), ch('C','G'), ch('C','Am'), ch('C','Em'), ch('C','F'), ch('C','C'), ch('C','F'), ch('C','G')], { speed: 50 }),
-    presetTask('preset-c-4', 'C调·流行四和弦 vi-IV-I-V（6-4-1-5）',
-      [ch('C','Am'), ch('C','F'), ch('C','C'), ch('C','G')], { speed: 60 }),
-    presetTask('preset-c-5', 'C调·伤感下行 I-iii-vi-IV（1-3-6-4）',
-      [ch('C','C'), ch('C','Em'), ch('C','Am'), ch('C','F')], { speed: 60 }),
-    presetTask('preset-c-6', 'C调·民谣温暖 I-IV-vi-V（1-4-6-5）',
-      [ch('C','C'), ch('C','F'), ch('C','Am'), ch('C','G')], { speed: 60 }),
-    presetTask('preset-c-7', 'C调·老派进行 I-vi-ii-V（1-6-2-5）',
-      [ch('C','C'), ch('C','Am'), ch('C','Dm'), ch('C','G')], { speed: 60 }),
-    presetTask('preset-c-8', 'C调·民谣摇滚 I-V-IV（1-5-4）',
-      [ch('C','C'), ch('C','G'), ch('C','F')], { speed: 80 }),
-    presetTask('preset-c-9', 'C调·循环推进 I-IV-V-vi（1-4-5-6）',
-      [ch('C','C'), ch('C','F'), ch('C','G'), ch('C','Am')], { speed: 70 }),
-    presetTask('preset-c-10', 'C调·全六和弦综合 I-ii-iii-IV-V-vi（1-2-3-4-5-6）',
-      [ch('C','C'), ch('C','Dm'), ch('C','Em'), ch('C','F'), ch('C','G'), ch('C','Am')], { speed: 60, mode: 'random' }),
-
-    /* ===== G 调 5 套 ===== */
-    presetTask('preset-g-1', 'G调·万能四和弦 I-vi-IV-V（1-6-4-5）',
-      [ch('G','G'), ch('G','Em'), ch('G','C'), ch('G','D')], { speed: 60 }),
-    presetTask('preset-g-2', 'G调·正格进行 I-IV-V（1-4-5）',
-      [ch('G','G'), ch('G','C'), ch('G','D')], { speed: 80 }),
-    presetTask('preset-g-3', 'G调·卡农进行 I-V-vi-iii-IV-I-IV-V（1-5-6-3-4-1-4-5）',
-      [ch('G','G'), ch('G','D'), ch('G','Em'), ch('G','Bm'), ch('G','C'), ch('G','G'), ch('G','C'), ch('G','D')], { speed: 50 }),
-    presetTask('preset-g-4', 'G调·流行四和弦 vi-IV-I-V（6-4-1-5）',
-      [ch('G','Em'), ch('G','C'), ch('G','G'), ch('G','D')], { speed: 60 }),
-    presetTask('preset-g-5', 'G调·温暖民谣 I-IV-vi-V（1-4-6-5）',
-      [ch('G','G'), ch('G','C'), ch('G','Em'), ch('G','D')], { speed: 60 })
-  ];
 
   /* ---------- DOM 引用 ---------- */
   const $ = id => document.getElementById(id);
@@ -85,8 +40,6 @@
     speedTag: $('speedTag'),
     modeTag: $('modeTag'),
 
-
-
     taskList: $('taskList'),
     sidePanel: $('sidePanel'),
     hamburgerBtn: $('hamburgerBtn'),
@@ -97,13 +50,19 @@
     exportBtn: $('exportBtn'),
     importBtn: $('importBtn'),
     importFile: $('importFile'),
+    saveConfigBtn: $('saveConfigBtn'),
+    loadConfigBtn: $('loadConfigBtn'),
     restorePresetsBtn: $('restorePresetsBtn'),
+    listTabs: $('listTabs'),
+    configStatus: $('configStatus'),
     taskModal: $('taskModal'),
     modalTitle: $('modalTitle'),
     modalClose: $('modalClose'),
     modalCancel: $('modalCancel'),
     modalSave: $('modalSave'),
     fName: $('f-name'),
+    fDesc: $('f-desc'),
+    fCommon: $('f-common'),
     chordSelector: $('chordSelector'),
     orderField: $('orderField'),
     orderList: $('orderList'),
@@ -114,8 +73,6 @@
     displayContentField: $('displayContentField'),
     displayContentFieldGroup: $('displayContentFieldGroup'),
     toast: $('toast')
-
-
   };
 
   /* ---------- 工具函数 ---------- */
@@ -236,72 +193,119 @@
     }).filter(Boolean);
   }
 
-  /* ---------- 持久化 ---------- */
-  function saveTasks() {
+  /* ---------- 任务数据规范化（兼容旧数据的 desc/common 默认值） ---------- */
+  function normalizeTask(t) {
+    if (typeof t.desc !== 'string') t.desc = '';
+    if (t.common === undefined || t.common === null) t.common = true; // 旧任务默认加入常用，避免突然消失
+    return t;
+  }
+  function normalizeTasks(list) {
+    return (list || []).map(normalizeTask);
+  }
+
+  /* ---------- 持久化：localStorage + 配置文件 ---------- */
+  function saveLocal() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
     catch (e) { /* ignore */ }
   }
-  function loadTasks() {
+  function loadLocal() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      tasks = raw ? JSON.parse(raw) : [];
-    } catch (e) { tasks = []; }
+      return raw ? normalizeTasks(JSON.parse(raw)) : null;
+    } catch (e) { return null; }
   }
 
-  /* 补齐缺失的预制任务（按 id 去重，不会覆盖用户自己改过的同 id 任务以外的内容） */
+  /* 补齐缺失的预制任务（按 id 去重，不覆盖用户已改过的同 id 任务） */
   function mergePresets() {
     const existing = new Set(tasks.map(t => t.id));
     let added = 0;
-    PRESET_TASKS.forEach(p => {
+    buildPresetTasks().forEach(p => {
       if (!existing.has(p.id)) {
         tasks.push(JSON.parse(JSON.stringify(p)));
         added++;
       }
     });
-    if (added) saveTasks();
+    if (added) saveLocal();
     return added;
   }
 
-  /* 是否为预制任务 */
+  /* 是否为预制任务（仅作来源标记） */
   function isPreset(task) {
     return !!(task && typeof task.id === 'string' && task.id.indexOf('preset-') === 0);
   }
 
-  /* 启动时幂等校验：
-   * - 一条预制任务都没有（被导入覆盖 / localStorage 清空 / 全删光）→ 自动补回全部
-   * - 只删了其中几条 → 不自动加回（尊重用户删除，可用侧栏按钮手动恢复） */
-  function ensurePresets() {
-    if (!tasks.some(isPreset)) mergePresets();
-    try { localStorage.setItem(PRESET_SEEDED_KEY, '1'); } catch (e) { /* ignore */ }
-    if (!currentTaskId && tasks.length) currentTaskId = PRESET_TASKS[0].id;
-  }
-
-  /* 手动恢复预制任务（侧栏按钮） */
+  /* 手动恢复预制任务（侧栏按钮，重置预制后直接写配置文件） */
   function restorePresets() {
     const added = mergePresets();
-    renderTaskList();
-    if (!currentTaskId && tasks.length) {
-      currentTaskId = tasks[0].id;
-      applyAudioMode(tasks[0]);
-    }
-    renderNavbar();
-    renderContent();
-    toast(added ? `已恢复 ${added} 个预制任务` : '预制任务已齐全');
+    persistToConfig().then(() => {
+      renderTaskList();
+      renderNavbar();
+      renderContent();
+      toast(added ? `已恢复 ${added} 个预制任务，并写入配置` : '预制任务已齐全');
+    });
   }
 
-  /* ---------- 渲染：任务列表 ---------- */
+  /* 保存当前任务到配置文件（后端可写时），同时缓存 localStorage */
+  function persistToConfig() {
+    saveLocal();
+    updateConfigStatus();
+    if (!configWritable) {
+      return Promise.resolve(false);
+    }
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(tasks)
+    }).then(r => r.json()).then(res => {
+      if (!res.ok) throw new Error(res.error || '写入失败');
+      return true;
+    }).catch(() => false);
+  }
+
+  /* 更新配置状态提示条 */
+  function updateConfigStatus() {
+    if (!els.configStatus) return;
+    if (configWritable) {
+      els.configStatus.textContent = '配置保存在 src/config/tasks.json，可提交到版本库';
+      els.configStatus.classList.add('ok');
+      els.configStatus.classList.remove('warn');
+    } else {
+      els.configStatus.textContent = '当前为只读服务器，改动仅暂存浏览器；请用 start.sh 启动以写入配置文件';
+      els.configStatus.classList.add('warn');
+      els.configStatus.classList.remove('ok');
+    }
+  }
+
+  /* 生成副本名称：原名称 + 副本 + 序号（匹配已有任务名取最大序号 +1） */
+  function nextCopyName(name) {
+    const base = String(name).trim();
+    const re = new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' 副本(\\d+)$');
+    let max = 0;
+    tasks.forEach(t => {
+      const m = re.exec(String(t.name));
+      if (m) max = Math.max(max, parseInt(m[1], 10));
+    });
+    return base + ' 副本' + (max + 1);
+  }
+
+  /* ---------- 渲染：任务列表（常用 / 仓库两个 Tab，同一份数据） ---------- */
   function taskItemHTML(t) {
     const active = t.id === currentTaskId ? ' active' : '';
+    const common = t.common ? ' on' : '';
+    const desc = t.desc ? `<div class="t-desc">${esc(t.desc)}</div>` : '';
     const chips = t.chords.slice(0, 6).map(c => `<span class="chip">${noteHTML(c.name)}</span>`).join('');
     const more = t.chords.length > 6 ? `<span class="chip">+${t.chords.length - 6}</span>` : '';
     return `<div class="task-item${active}" data-id="${t.id}">
       <div class="t-head">
         <div class="t-name">${esc(t.name)}</div>
         <div class="t-actions">
+          <button class="common-toggle${common}" data-action="toggle" title="${t.common ? '移出常用' : '加入常用'}">★</button>
           <button class="edit" data-action="edit" title="编辑">✏️</button>
+          <button class="copy" data-action="copy" title="复制">⧉</button>
           <button class="del" data-action="del" title="删除">🗑</button>
         </div>
       </div>
+      ${desc}
       <div class="t-meta">
         ${t.mode === 'random' ? '随机转换' : '顺序转换'} · ${t.speed}次/分
         <div class="chips">${chips}${more}</div>
@@ -309,23 +313,56 @@
     </div>`;
   }
 
+  /* 任务排序：常用在前，随后按调（C 优先）与名称 */
+  function sortTasks(list) {
+    const keyRank = k => (k === 'C' ? 0 : k === 'G' ? 1 : 2);
+    return list.slice().sort((a, b) => {
+      if (a.common !== b.common) return a.common ? -1 : 1;
+      const kr = keyRank(a.key) - keyRank(b.key);
+      if (kr !== 0) return kr;
+      return String(a.name).localeCompare(String(b.name), 'zh');
+    });
+  }
+
+  function groupTasks(list) {
+    const groups = [];
+    const push = (title, items) => { if (items.length) groups.push({ title, list: items }); };
+    const presetC = list.filter(t => isPreset(t) && t.key === 'C');
+    const presetG = list.filter(t => isPreset(t) && t.key === 'G');
+    const presetRest = list.filter(t => isPreset(t) && t.key !== 'C' && t.key !== 'G');
+    const mine = list.filter(t => !isPreset(t));
+    push('🎸 C 调', presetC);
+    push('🎸 G 调', presetG);
+    push('🎸 其它调', presetRest);
+    push('✍️ 我的任务', mine);
+    return groups;
+  }
+
   function renderTaskList() {
-    if (!tasks.length) {
-      els.taskList.innerHTML = '<div class="task-empty"><div class="icon">🎸</div>暂无任务<br>点击「新建任务」开始</div>';
+    renderTaskTabs();
+
+    const pool = listTab === 'common' ? tasks.filter(t => t.common) : tasks.slice();
+    if (!pool.length) {
+      els.taskList.innerHTML = listTab === 'common'
+        ? '<div class="task-empty"><div class="icon">⭐</div>常用列表为空<br>到「任务仓库」里点亮 ★ 加入常用</div>'
+        : '<div class="task-empty"><div class="icon">🎸</div>暂无任务<br>点击「新建任务」或「重置预制」</div>';
       return;
     }
-    // 分组：C 调预制 / G 调预制 / 其它调预制 / 我的任务
-    const presetRest = tasks.filter(t => isPreset(t) && t.key !== 'C' && t.key !== 'G');
-    const groups = [
-      { title: '🎸 C 调·民谣预制', list: tasks.filter(t => isPreset(t) && t.key === 'C') },
-      { title: '🎸 G 调·民谣预制', list: tasks.filter(t => isPreset(t) && t.key === 'G') },
-      { title: '🎸 其它调·预制', list: presetRest },
-      { title: '✍️ 我的任务', list: tasks.filter(t => !isPreset(t)) }
-    ];
-    els.taskList.innerHTML = groups.filter(g => g.list.length).map(g =>
+
+    const groups = groupTasks(sortTasks(pool));
+    els.taskList.innerHTML = groups.map(g =>
       `<div class="task-group-head">${g.title}<span class="tg-count">${g.list.length}</span></div>` +
       g.list.map(taskItemHTML).join('')
     ).join('');
+  }
+
+  function renderTaskTabs() {
+    if (!els.listTabs) return;
+    const commonCount = tasks.filter(t => t.common).length;
+    const allCount = tasks.length;
+    els.listTabs.innerHTML =
+      `<button class="tab${listTab === 'common' ? ' active' : ''}" data-tab="common">⚡ 常用 <span class="tab-count">${commonCount}</span></button>` +
+      `<button class="tab${listTab === 'all' ? ' active' : ''}" data-tab="all">📦 仓库 <span class="tab-count">${allCount}</span></button>`;
   }
 
   /* ---------- 渲染：导航栏任务名 + 模式tag + 预览 ---------- */
@@ -984,6 +1021,8 @@
     els.modalTitle.textContent = task ? '编辑任务' : '新建任务';
     els.fName.value = task ? task.name : '';
     els.fSpeed.value = task ? task.speed : 60;
+    if (els.fDesc) els.fDesc.value = task ? (task.desc || '') : '';
+    if (els.fCommon) els.fCommon.checked = task ? task.common !== false : true;
     // 转换模式
     const modeVal = task ? (task.mode || 'sequential') : 'sequential';
     document.querySelectorAll('input[name="f-mode"]').forEach(r => {
@@ -1214,6 +1253,9 @@
 
 
 
+    const desc = els.fDesc ? els.fDesc.value.trim() : '';
+    const common = els.fCommon ? els.fCommon.checked : true;
+
     const task = {
       id: editingId || uid(),
       name,
@@ -1226,11 +1268,10 @@
       displayMode,
       displayContent,
       playTone,
-      playChord
+      playChord,
+      desc,
+      common
     };
-
-
-
 
     if (editingId) {
       const idx = tasks.findIndex(t => t.id === editingId);
@@ -1238,47 +1279,81 @@
     } else {
       tasks.push(task);
     }
-    saveTasks();
-    renderTaskList();
-    if (!currentTaskId) {
-      currentTaskId = task.id;
-    }
-    renderNavbar();
-    renderContent();
-    if (currentTaskId === task.id) applyAudioMode(task);
-    closeModal();
-    toast('任务已保存');
+    persistToConfig().then(() => {
+      renderTaskList();
+      if (!currentTaskId) currentTaskId = task.id;
+      renderNavbar();
+      renderContent();
+      if (currentTaskId === task.id) applyAudioMode(task);
+      closeModal();
+      toast('任务已保存');
+    });
   }
 
   /* ---------- 导入导出 ---------- */
   function exportTasks() {
+    const d = new Date();
+    const stamp = '' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
     const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'guitar_practice_tasks.json';
+    a.download = 'guitar-tasks-' + stamp + '.json';
     a.click();
     URL.revokeObjectURL(url);
-    toast('已导出');
+    toast('已导出备份文件');
   }
 
   function importTasks(file) {
     const reader = new FileReader();
     reader.onload = e => {
       try {
-        const data = JSON.parse(e.target.result);
-        if (!Array.isArray(data)) throw new Error('格式错误');
-        tasks = data;
-        saveTasks();
-        renderTaskList();
-        renderNavbar();
-        renderContent();
-        toast('导入成功');
+        const data = normalizeTasks(JSON.parse(e.target.result));
+        if (!Array.isArray(data)) throw new Error('格式错误：应为任务数组');
+        // 导入默认合并（导入文件中的任务按 id 覆盖/新增），保留现有
+        const map = new Map(tasks.map(t => [t.id, t]));
+        data.forEach(t => { map.set(t.id, t); });
+        tasks = Array.from(map.values());
+        persistToConfig().then(() => {
+          currentTaskId = null;
+          renderTaskList();
+          renderNavbar();
+          renderContent();
+          toast('导入成功，已同步到配置');
+        });
       } catch (err) {
         toast('导入失败：' + err.message, true);
       }
     };
     reader.readAsText(file);
+  }
+
+  /* 主动保存当前任务到配置文件 */
+  function saveConfig() {
+    if (!configWritable) {
+      toast('当前只读服务器，无法写配置；请用 start.sh 启动', true);
+      return;
+    }
+    persistToConfig().then(ok => {
+      toast(ok ? '配置已写入 src/config/tasks.json' : '配置写入失败', !ok);
+    });
+  }
+
+  /* 从配置文件读取并载入 */
+  function loadConfig() {
+    fetch(CONFIG_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => { if (!r.ok) throw new Error('配置文件不存在'); return r.json(); })
+      .then(data => {
+        if (!Array.isArray(data)) throw new Error('配置格式错误');
+        tasks = normalizeTasks(data);
+        saveLocal();
+        currentTaskId = null;
+        renderTaskList();
+        renderNavbar();
+        renderContent();
+        toast('已载入配置文件');
+      })
+      .catch(err => toast('载入失败：' + err.message, true));
   }
 
   /* ---------- 事件绑定 ---------- */
@@ -1352,6 +1427,33 @@
         if (action === 'edit') {
           const task = tasks.find(t => t.id === id);
           if (task) openModal(task);
+        } else if (action === 'toggle') {
+          const task = tasks.find(t => t.id === id);
+          if (task) {
+            task.common = !task.common;
+            persistToConfig().then(() => {
+              renderTaskList();
+              toast(task.common ? '已加入常用' : '已移出常用');
+            });
+          }
+        } else if (action === 'copy') {
+          const src = tasks.find(t => t.id === id);
+          if (src) {
+            const copy = JSON.parse(JSON.stringify(src));
+            copy.id = uid();
+            copy.name = nextCopyName(src.name);
+            tasks.push(copy);
+            persistToConfig().then(() => {
+              currentTaskId = copy.id;
+              currentChordIdx = 0;
+              resetTraining();
+              applyAudioMode(copy);
+              renderTaskList();
+              renderNavbar();
+              renderContent();
+              toast('已复制任务：' + copy.name);
+            });
+          }
         } else if (action === 'del') {
           if (confirm('确定删除该任务？')) {
             tasks = tasks.filter(t => t.id !== id);
@@ -1359,10 +1461,11 @@
               currentTaskId = null;
               resetTraining();
             }
-            saveTasks();
-            renderTaskList();
-            renderNavbar();
-            renderContent();
+            persistToConfig().then(() => {
+              renderTaskList();
+              renderNavbar();
+              renderContent();
+            });
           }
         }
         return;
@@ -1450,7 +1553,19 @@
     // 点击任务栏以外的区域关闭
     els.drawerBackdrop.addEventListener('click', closeDrawer);
 
-    // 导入导出 + 恢复预制任务
+    // 任务面板 Tab 切换
+    if (els.listTabs) {
+      els.listTabs.addEventListener('click', e => {
+        const btn = e.target.closest('.tab');
+        if (!btn) return;
+        listTab = btn.dataset.tab === 'all' ? 'all' : 'common';
+        renderTaskList();
+      });
+    }
+
+    // 保存 / 载入配置 + 重置预制 + 导入导出
+    if (els.saveConfigBtn) els.saveConfigBtn.addEventListener('click', saveConfig);
+    if (els.loadConfigBtn) els.loadConfigBtn.addEventListener('click', loadConfig);
     if (els.restorePresetsBtn) els.restorePresetsBtn.addEventListener('click', restorePresets);
     els.exportBtn.addEventListener('click', exportTasks);
     els.importBtn.addEventListener('click', () => els.importFile.click());
@@ -1461,13 +1576,41 @@
   }
 
   /* ---------- 初始化 ---------- */
+  /* 数据源优先级：配置文件 → localStorage → 内置预制 */
   function init() {
-    loadTasks();
-    ensurePresets();
     bindEvents();
-    renderTaskList();
-    renderNavbar();
-    renderContent();
+
+    fetch(API_URL, { method: 'GET' })
+      .then(r => r.json())
+      .then(data => {
+        configWritable = true;
+        tasks = normalizeTasks(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        // /api/tasks 不可用（只读服务器 / file://）→ 降级
+        configWritable = false;
+        const local = loadLocal();
+        if (local !== null && local.length) {
+          tasks = local;
+        } else {
+          tasks = buildPresetTasks();
+        }
+      })
+      .then(() => {
+        // 无预制则补齐；首次无数据也用预制填充
+        if (!tasks.some(isPreset)) mergePresets();
+        if (!tasks.length) tasks = buildPresetTasks();
+
+        // 保存一份到 localStorage 并刷新状态
+        saveLocal();
+        updateConfigStatus();
+
+        if (!currentTaskId && tasks.length) currentTaskId = tasks[0].id;
+        renderTaskList();
+        renderNavbar();
+        renderContent();
+        if (currentTaskId) applyAudioMode(tasks.find(t => t.id === currentTaskId));
+      });
   }
 
   document.addEventListener('DOMContentLoaded', init);

@@ -287,3 +287,32 @@
 .rf-strip-deg{font-size:11px;font-weight:800;fill:var(--amber)}
 .rf-strip-name{font-weight:900;fill:var(--wood-dark)}
 .rf-strip-div{stroke:rgba(139,90,43,.28);stroke-width:1.2}
+
+/* ===== 任务面板 Tab（常用 / 仓库） ===== */
+.list-tabs{display:flex;gap:6px;margin-bottom:12px}
+.list-tabs .tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg-warm);border:2px solid rgba(139,90,43,.18);border-radius:10px;padding:9px 8px;font-size:13px;font-weight:800;color:var(--text-secondary);cursor:pointer;transition:all .2s ease}
+.list-tabs .tab:hover{border-color:var(--wood-light)}
+.list-tabs .tab.active{background:linear-gradient(135deg,var(--wood) 0%,var(--wood-dark) 100%);border-color:var(--wood-dark);color:#fff}
+.list-tabs .tab-count{background:rgba(139,90,43,.15);border-radius:999px;padding:0 7px;font-size:11px;font-weight:800;color:inherit}
+.list-tabs .tab.active .tab-count{background:rgba(255,255,255,.25)}
+
+/* ===== 任务项：常用开关 + 介绍 ===== */
+.task-item .t-actions .common-toggle{width:30px;height:30px;border-radius:8px;font-size:15px;color:var(--text-secondary);background:var(--bg-warm);border:1px solid rgba(139,90,43,.15);cursor:pointer;transition:all .2s ease}
+.task-item .t-actions .common-toggle:hover{background:var(--wood);color:#fff;border-color:var(--wood)}
+.task-item .t-actions .common-toggle.on{color:#D4A017;background:#FFF8E7;border-color:rgba(212,160,23,.45)}
+.task-item .t-actions .common-toggle.on:hover{background:var(--amber);color:#3E2F1C;border-color:var(--amber)}
+.task-item .t-desc{font-size:12px;color:var(--text-secondary);line-height:1.5;margin:0 0 6px;padding:6px 8px;background:var(--bg-warm);border-left:3px solid var(--amber);border-radius:6px}
+
+/* ===== 配置状态提示条 ===== */
+.config-status{margin:10px 0;font-size:11px;line-height:1.5;padding:6px 10px;border-radius:8px}
+.config-status.ok{background:rgba(76,140,74,.1);color:var(--green);border:1px solid rgba(76,140,74,.25)}
+.config-status.warn{background:rgba(212,160,23,.1);color:#8a6d0b;border:1px solid rgba(212,160,23,.3)}
+
+/* ===== 弹窗：介绍文本框 + 常用开关行 ===== */
+.input-field.textarea{resize:vertical;min-height:64px;line-height:1.6}
+.switch-row{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--wood-dark);cursor:pointer}
+.switch-row input{width:17px;height:17px;accent-color:var(--wood)}
+
+/* ===== 操作按钮区（可换行） ===== */
+.io-actions{flex-wrap:wrap}
+.io-actions button{flex:1 1 30%;min-width:80px}
